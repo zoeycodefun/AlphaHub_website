@@ -9,7 +9,6 @@ import UserAccounts from './layout_components/user_accounts';
 
 
 // layout布局：包含顶栏（系统名，市场选择，导航，语言切换，搜索，用户账户；以及下面的内容区）
-// 响应设计（移动端弹窗，桌面端内联），状态管理，模块化，无障碍
 
 
 const Layout: React.FC = memo(() => {
