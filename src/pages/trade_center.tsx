@@ -172,6 +172,7 @@ const TradeCenter: React.FC = memo(() => {
                             ></Route>
                         </Routes>
                         </Suspense>
+                        
                     </div>
                 </main>
             </div>
