@@ -1,18 +1,15 @@
 import { useMarketSwitchStore } from "../../global_state_store/market_switch_global_state_store" // 引入市场选择的全局状态store钩子
 import React, { useState, useCallback, useRef, useEffect, memo } from "react";
 /**
- * 市场类型选择器：用于未来用户选择更多市场的拓展，v1版本仅支持加密资产与web3市场，未未来拓展预留其他市场类型
- * 市场类型（现有市场与待拓展市场：加密资产与web3市场（v1现有），美股，商品，外汇，指数，债务利率（待拓展））
- * 类型安全，性能优化，可访问性，点击外部关闭
+ * market type selector component
  */
 
-// 定义市场选项接口（类型安全）
 interface MarketOption {
-    value: string; // 市场标识
-    label: string; // 市场显示标签
-    enabled: boolean; // 市场是否启用
+    value: string;
+    label: string;
+    enabled: boolean;
 }
-// 市场配置（支持未来拓展）
+
 const MARKET_OPTIONS: readonly MarketOption[] = [
     {value: 'cryptocurrency_web3', label: '加密资产与web3', enabled: true},
     {value: 'us_stock', label: '美股', enabled: false},
@@ -20,20 +17,20 @@ const MARKET_OPTIONS: readonly MarketOption[] = [
     {value: 'forex', label:'外汇', enabled: false},
     {value: 'equity_index', label:'指数', enabled: false},
     {value: 'interest_rate', label:'债务利率', enabled: false},
-] as const; // 使用as const确保数组和对象的不可变性
+] as const;
 
 
 const MarketSelector: React.FC = memo(() => {
-    const { selectedMarket, setSelectedMarket } = useMarketSwitchStore(); // 从store里面解构出当前市场选择和更新函数
+    const { selectedMarket, setSelectedMarket } = useMarketSwitchStore();
     const [openMarketSwitchMenu, setOpenMarketSwitchMenu] = useState(false);
-    // 下拉菜单的DOM引用，用于点击外部关闭
+    
     const marketSwitchMenuRef = useRef<HTMLDivElement>(null);
 
     const currentChooseMarketLabel = MARKET_OPTIONS.find(
         (market) => market.value === selectedMarket
     )?.label || '选择市场';
 
-    // 切换下拉菜单：使用useCallback避免重复创建函数
+    
     const toggleMarketSwitchMenu = useCallback(() => {
         setOpenMarketSwitchMenu((prev) => !prev);
     }, []);
@@ -42,7 +39,7 @@ const MarketSelector: React.FC = memo(() => {
     }, []);
 
 
-    // 处理市场选择：选择市场后更新全局状态并关闭菜单
+    
     const handleMarketSelect = useCallback((value: string) => {
         setSelectedMarket(value)
         closeMarketSwitchMenu();
@@ -122,7 +119,7 @@ const MarketSelector: React.FC = memo(() => {
                    {MARKET_OPTIONS.map((market) => (
                     <li
                     key={market.value}
-                    onClick={() => market.enabled && handleMarketSelect(market.value)} // 禁用状态不响应点击
+                    onClick={() => market.enabled && handleMarketSelect(market.value)}
                     onKeyDown={(event) => market.enabled && handleKeyboardDown(event, market.value)}
                     className={`
                         px-2 py-2 relativetransition-colors cursor-pointer 
@@ -136,7 +133,7 @@ const MarketSelector: React.FC = memo(() => {
                     >
                         <div className="flex items-center justify-center">
                             <span className="text-[13px]">{market.label}</span>
-                            {/** 选中标记 */}
+                            
                             {market.value === selectedMarket && (
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                     <path
@@ -146,7 +143,7 @@ const MarketSelector: React.FC = memo(() => {
                                     />
                                 </svg>
                             )}
-                            {/** 禁用标记 */}
+                        
                             {!market.enabled && (
                                 <span></span>
                             )}
@@ -158,6 +155,6 @@ const MarketSelector: React.FC = memo(() => {
         </div>
     );
     });
-MarketSelector.displayName = 'MarketSelector'; // 调试
+MarketSelector.displayName = 'MarketSelector';
 export default MarketSelector;
 

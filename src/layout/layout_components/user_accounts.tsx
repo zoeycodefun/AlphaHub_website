@@ -1,14 +1,11 @@
-// 所有账户统一管理：多个模块的账户统一管理
+// all accounts management
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { X, Plus, Link, Settings, Trash2, Loader} from 'lucide-react'
 
-// ❌❌ 用户信息加密后端存储，表单验证，实时反馈错误，API连接，，，根据后端调整
 
-
-// 类型定义（安全）
 interface Exchange {
-    id: string; // 交易所唯一标识符
+    id: string;
     name: string; 
     type: 'CEX' | 'DEX' | 'OTHER';
     isConnected: boolean;
@@ -28,7 +25,7 @@ interface ExchangeAccount {
 type AccountType = 'CEX' | 'DEX' | 'OTHER';
 type operateWindowType = 'connect' | 'add' | 'manage' | null;
 
-// 常量定义
+
 const EXCHANGE_TYPES = {
     CEX: '中心化交易所',
     DEX: '去中心化交易所',
@@ -43,12 +40,8 @@ const EXCHANGES: Exchange[] = [
     { id: 'hyperliquid', name: 'Hyperliquid', type: 'DEX', isConnected: false},
 
     // OTHER
-
-
 ];
 
-// 用户账户管理弹窗组件：支持中心化与去中心化交易所账户和其他账户
-// 功能：连接账户（变化状态：断开连接（表示已连接），连接异常），新增账户，管理账户（查看账户列表与删除操作）
 const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: () => void }> = ({
     openAccountWindow,
     closeAccountWindow,
@@ -60,7 +53,6 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
     const [allAccounts, setAllAccounts] = useState<ExchangeAccount[]>([]);
 
     
-    // ❌❌ 组件挂载时从后端加载用户数据，数据库存储
     useEffect(() => {
         const savedAccounts = localStorage.getItem('exchangeAccounts');
         if (savedAccounts) {
@@ -78,31 +70,27 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                 console.error('Failed to load accounts:', error);
             }
         }
-    }, []); // 空依赖数组（挂载加载）
+    }, []);
 
-
-    // 账户数据保存函数
     const saveAccounts = useCallback((newAccounts: ExchangeAccount[]) => {
         setAllAccounts(newAccounts);
         localStorage.setItem('exchangeAccounts', JSON.stringify(newAccounts));
     }, []);
     
     
-    // 根据标签过滤交易所列表
+    
     const filteredExchanges = useMemo(
         () => EXCHANGES.filter((exchange) => exchange.type === activeExchangeType),
         [activeExchangeType]
     );
 
-
-    // 获取指定交易所所有账户函数
     const getExchangeAccounts = useCallback(
         (exchangeId: string) => allAccounts.filter((account) => account.exchangeId === exchangeId),
         [allAccounts]
     );
 
     
-    // 连接账户处理函数（添加加载状态与错误处理）
+    // connect account function
     const handleConnectAccount = useCallback(
         async (acc: ExchangeAccount) => {
             setAllAccounts((prevAccount) => (
@@ -113,7 +101,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                 )
             ));
             try {
-                // ❌❌ 实际的API连接
+                
                 await new Promise((reslove, reject) => {
                     setTimeout(() => Math.random() > 0.2 ? reslove(true) :
                 reject(new Error('Connection failded: Please check API credentials or network.')), 2000);
@@ -131,13 +119,13 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                     account.id === account.id ? { ...account, isConnecting: false} : account
                     )
                 );
-                // ❌❌ 显示错误通知
+                
             }
         }, [allAccounts, saveAccounts]
         );
 
 
-    // 新增账户事件处理函数
+    // add account function
     const handleAddAccount = useCallback(
         (exchangeId: string, accountData: Partial<ExchangeAccount>) => {
             const newAccount: ExchangeAccount = {
@@ -153,7 +141,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
         [allAccounts, saveAccounts]
     );
 
-    // 删除账户事件处理函数（更新逻辑）
+    // delete account function
     const handleDeleteAccount = useCallback(
         (accountId: string) => {
             const updatedAccounts = allAccounts.filter((account) => account.id !== accountId);
@@ -165,13 +153,12 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
 
     return (
         <div>
-            {/** 遮蔽罩 */}
+            
             <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
-                {/** 主弹窗 */}
+                {/** main window */}
                 <div className='bg-white rounded-xl w-full h-full md:h-auto md:max-w-4xl md:max-h-[80vh] md:h-[80vh] overflow-hidden flex flex-col 
                 md:grid md:grid-rows-[auto-1fr] md:grid-cols-[1fr-3fr]
                 '>
-                    {/** 弹窗头部 */}
                     <div className='flex justify-between items-center p-4 border-b 
                     md:col-span-2
                     '>
@@ -184,10 +171,8 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                             <X className="w-6 h-6 md:w-7 md:h-7" />
                         </button>
                     </div>
-                    {/** 弹窗内容区域：左右分栏（移动端是垂直的） */}
+                    {/** window content */}
                     <div className='w-full md:w-auto p-4 border-r md:border-r-0 md:border-b md:row-start-2'>
-                        {/** 左边交易所分类导航 */}
-                        
                             <nav className='flex flex-col space-y-2'>
                                 {Object.entries(EXCHANGE_TYPES).map(([key, label]) => (
                                     <button
@@ -204,7 +189,6 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                                 ))}
                             </nav>
                     </div>
-                    {/** 右侧交易所列表与操作 */}
                     <div className='flex-1 p-4 overflow-y-auto scrollbar-hide md:row-start-2 md:col-start-2 min-h-0 min-h-[300px]'>
                         <h3 className='text-sm md:text-lg mb-4'>{EXCHANGE_TYPES[activeExchangeType]}列表</h3>
                         <div className='space-y-4 overflow-y-auto'>
@@ -215,18 +199,16 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                                     key={exchange.id}
                                     className='border rounded-lg p-4'
                                     >
-                                        {/** 交易所头部信息（通用交易所头） */}
+                                        {/** exchange */}
                                         <div className='flex flex-col justify-between items-start mb-4 '>
-                                            {/** 左侧：交易所信息 */}
                                             <div>
                                                 <div className='mb-2 flex flex-col '>
                                                     <span className='text-sm md:text-lg'>{exchange.name}</span>
                                                     <span>{exchangeAccounts.length}个账户</span>
                                                 </div>
                                             </div>
-                                            {/** 右侧：操作按钮和附属弹窗钩子 */}
                                             <div className='flex flex-wrap gap-3'>
-                                                {/** 连接账户 */}
+                                                {/** connection */}
                                                 <button
                                                 onClick={() => {
                                                     setSelectedExchange(exchange)
@@ -238,7 +220,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                                                     连接账户
                                                     
                                                 </button>
-                                                {/** 新增账户 */}
+                                                {/** add account */}
                                                 <button
                                                 onClick={() => {
                                                     setSelectedExchange(exchange)
@@ -249,7 +231,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                                                     <Plus className='w-4 h-4 '/>
                                                     新增账户
                                                 </button>
-                                                {/** 管理账户 */}
+                                                {/** manage account */}
                                                 <button
                                                 onClick={() => {
                                                     setSelectedExchange(exchange)
@@ -262,7 +244,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                                                 </button>
                                             </div>
                                         </div>
-                                        {/** 已连接的账户预览 */}
+                                        {/** all connected accounts */}
                                         {exchangeAccounts.length > 0 && (
                                             <div
                                             className='text-sm text-gray-600'
@@ -278,7 +260,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                 </div>
             </div>
 
-            {/** 账户弹窗子弹窗渲染：激活的子弹窗的状态渲染对应弹窗组件 */}
+            {/** sub window of account window */}
             {activeOperateWindow === 'connect' && selectedExchange && (
                 <ConnectAccountSubWindow
                 exchange={selectedExchange}
@@ -305,7 +287,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
         </div>
     );
 };
-// 连接账户弹窗组件：用户选择连接的账户并执行操作（已有的账户的连接）
+// connect account window
 const ConnectAccountSubWindow: React.FC<{
     exchange: Exchange;
     accounts: ExchangeAccount[];
@@ -319,15 +301,14 @@ const ConnectAccountSubWindow: React.FC<{
 }) => {
     const [selectedAccountId, setSelectedAccountId] = useState<string>('');
     return (
-        // 遮蔽罩
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
-            {/** 弹窗 */}
+            {/** window */}
             <div className='bg-white rounded-lg max-w-md w-full p-4 md:p-6 flex flex-col'>
                 <span className='text-lg mb-4'>连接{exchange.name}账户</span>
                 {accounts.length === 0 ? (
                     <span className='text-gray-600'>暂无可连接账户，请先新增账户</span>
                 ):(
-                    // 有账户选择下拉框
+                    // select account form
                     <div className='mb-4'>
                         <label className='block text-sm mb-2'>选择要连接的账户</label>
                         <select
@@ -345,7 +326,7 @@ const ConnectAccountSubWindow: React.FC<{
                         </select>
                     </div>
                 )}
-                {/** 底部操作按钮 */}
+                {/** bottom action buttons */}
                 <div 
                 className='flex flex-col sm:flex-row justify-end gap-2 mt-2'
                 >
@@ -371,7 +352,7 @@ const ConnectAccountSubWindow: React.FC<{
     );
 };
 
-// 新增账户弹窗，用户输入账户信息创建账户
+// add account window
 const AddAccountSubWindow: React.FC<{
     exchange: Exchange;
     onAdd: (accountData: Partial<ExchangeAccount>) => void;
@@ -381,7 +362,6 @@ const AddAccountSubWindow: React.FC<{
     onAdd,
     onClose
 }) => {
-    // ❌表单设置(加密存储与极度安全的设置)
     const [accountFormData, setAccountFormData] = useState({
         name: '',
         apiKey: '',
@@ -417,7 +397,6 @@ const AddAccountSubWindow: React.FC<{
                 onSubmit={handleSubmitAccountInfo}
                 className='space-y-4'
                 action="">
-                    {/** 账户名称输入框 */}
                     <label
                     className='block text-sm mb-1'
                     >
@@ -433,7 +412,6 @@ const AddAccountSubWindow: React.FC<{
                     />
                     {errors.name && <p className='text-red-500 text-sm mt-1'>{errors.name}</p>}
         
-                        {/** 有条件的渲染：中心化交易所API */}
                         {exchange.type === 'CEX' && (
                             <>
                             <div>
@@ -466,7 +444,6 @@ const AddAccountSubWindow: React.FC<{
                             </div>
                             </>
                         )}
-                        {/** 有条件的渲染：去中心化交易所或者其他类型，用钱包地址 */}
                         {exchange.type === 'DEX' || exchange.type === 'OTHER' ? (
                             <div>
                                 <label 
@@ -503,7 +480,7 @@ const AddAccountSubWindow: React.FC<{
         </div>
     );
 };
-// 管理账户弹窗组件：显示账户列表，支持删除操作
+// manage account
 const ManageAccountSubWindow: React.FC<{
     exchange: Exchange;
     accounts: ExchangeAccount[];
@@ -530,7 +507,7 @@ const ManageAccountSubWindow: React.FC<{
                     <span>暂无可管理账户，请先新增账户</span>
 
                 ):(
-                    // 有账户展示账户列表便于管理
+                    
                     <div className='space-y-4'>
                         {accounts.map((account) => (
                             <div 
@@ -570,7 +547,7 @@ const ManageAccountSubWindow: React.FC<{
                     </button>
                 </div>
             </div>
-            {/** 删除确认弹窗 */}
+            {/** delete window */}
             {deleteConfirm && (
                 <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
                     <div className='bg-white rounded-lg max-w-sm w-full p-4 md:p-6'>

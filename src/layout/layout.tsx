@@ -8,7 +8,7 @@ import SearchBar from './layout_components/search_bar';
 import UserAccounts from './layout_components/user_accounts';
 
 
-// layout布局：包含顶栏（系统名，市场选择，导航，语言切换，搜索，用户账户；以及下面的内容区）
+// layout: top bar(system name, market selector, navigation, language selector, search, users accounts)
 
 
 const Layout: React.FC = memo(() => {
@@ -16,7 +16,7 @@ const Layout: React.FC = memo(() => {
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState<boolean>(false);
   const currentLocation = useLocation();
 
-  // 触发函数
+  
   const handleUserAccountsToggle = useCallback(() => {
     setIsUserAccountsWindowOpen((prev) => !prev);
   }, []);
@@ -77,9 +77,8 @@ const Layout: React.FC = memo(() => {
       <header className='fixed w-full top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 '>
         <div className='w-full px-4 '>
           <div className='flex items-center justify-between h-16'>
-            {/** 移动端导航，系统名称，市场选择 */}
+            {/** mobile navigation */}
             <div className='flex items-center space-x-3'>
-              {/** 移动端导航菜单 */}
               <button
               onClick={handleMobileNavigationToggle}
               className='md:hidden rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 
@@ -93,11 +92,11 @@ const Layout: React.FC = memo(() => {
                 AlphaHub</span>
                 <MarketSelector/>
             </div>
-            {/** 桌面端导航 */}
+            {/** desktop navigation */}
             <div className='hidden md:w-[370px] lg:w-[550px] xl:w-[850px] md:flex flex items-center overflow-x-auto'>
               <Navigation/>
             </div>
-            {/** 功能按钮区域 */}
+            {/** function buttons */}
             <div className='flex items-center space-x-3 lg:space-x-5'>
               <LanguageSwitcher/>
               <SearchBar/>
@@ -116,13 +115,13 @@ const Layout: React.FC = memo(() => {
           </div>
         </div>
       </header>
-      {/** 主内容区域 */}
+      {/** main content */}
       <main className='pt-20 pb-8 px-4'>
         <div className='max-w-7xl mx-auto'>
           <Outlet/>
         </div>
       </main>
-      {/** 移动端导航弹窗 */}
+      {/** mobile navigation window */}
       {isMobileNavigationOpen && (
         <div
         className='fixed inset-0 z-50 md:hidden'
@@ -130,16 +129,14 @@ const Layout: React.FC = memo(() => {
         aria-modal="true"
         aria-label="Mobile navigation menu"
         >
-          {/** 背景遮罩 */}
           <div
           className='fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300'
           onClick={handleMobileNavigationClose}
           >
-            {/** 导航面板 - 居中固定小窗 */}
+            {/** navigation panel */}
             <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 max-w-sm bg-white rounded-lg shadow-xl transition-all duration-300 ease-in-out'
             onClick={(event) => event.stopPropagation()}
             >
-              {/** 弹窗头部 */}
               <div className='flex items-center justify-between p-4 border-b border-gray-100 rounded-t-lg'>
                 <span className='text-sm font-medium text-gray-900'>导航菜单</span>
                 <button
@@ -152,7 +149,7 @@ const Layout: React.FC = memo(() => {
                   <X className='w-5 h-5'/>
                 </button>
               </div>
-              {/** 导航项列表 */}
+              {/** navigation list */}
               <nav className='max-h-96 overflow-y-auto scrollbar-hide py-2'
               role="navigation"
               >
@@ -188,7 +185,7 @@ const Layout: React.FC = memo(() => {
 
         </div>
       )}
-      {/** 用户账户弹窗 */}
+      {/** user account window */}
       <UserAccounts
       openAccountWindow={isUserAccountsWindowOpen}
       closeAccountWindow={() => setIsUserAccountsWindowOpen(false)}/>

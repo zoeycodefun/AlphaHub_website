@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 隐藏滚动条 */
+/* hide scroll bar */
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */

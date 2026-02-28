@@ -62,13 +62,13 @@ const TradeCenter: React.FC = memo(() => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // 从 localStorage 获取最后选择的页面，如果没有则使用默认的合约交易
+    // choose the last page from localStorage, if not exist, use the default contract trading page
     const getInitialPage = useCallback(() => {
         const savedPage = localStorage.getItem('trade_center_last_page');
         if (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) {
             return savedPage;
         }
-        return 'spot_trading'; // 默认页面
+        return 'contract_trading'; // default page
     }, []);
 
     // use separate types
@@ -89,7 +89,7 @@ const TradeCenter: React.FC = memo(() => {
         if (relativePath) {
             pageId = relativePath;
         } else {
-            // 如果路径为空，优先使用 localStorage 中保存的页面
+            // if path is empty, use the saved page from localStorage or default to contract trading
             const savedPage = localStorage.getItem('trade_center_last_page');
             pageId = (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) ? savedPage : 'contract_trading';
         }
@@ -103,20 +103,21 @@ const TradeCenter: React.FC = memo(() => {
             console.log('Setting current page to:', vaildPage.id);
             setState(prevState => ({ ...prevState, currentPage: vaildPage.id }));
         }
-    }, [location.pathname]); // 移除 state.currentPage 依赖，避免无限循环
+    }, [location.pathname]);
+    // remove the dependency of state.currentPage to avoid infinite loop, because navigate will change the location which will trigger this useEffect again, but we only want to update the currentPage when the location changes, not when currentPage changes
 
-    // 当组件挂载且路径为空时，导航到正确的页面
+    // when the component mounts and the path is empty, navigate to the correct page
     useEffect(() => {
         const relativePath = location.pathname.replace(/^\/trading_center\/?/, '');
         if (!relativePath) {
             const savedPage = localStorage.getItem('trade_center_last_page');
             const targetPage = (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) ? savedPage : 'contract_trading';
 
-            // 直接设置状态并导航
             setState(prevState => ({ ...prevState, currentPage: targetPage }));
             navigate(`/trading_center/${targetPage}`, { replace: true });
         }
-    }, []); // 只在组件挂载时执行一次
+    }, []);
+    // only operate when the component mounts
 
     // handle permissions check function
     const checkPermission = useCallback((requiredPermissions?: readonly string[]): boolean => {
@@ -128,7 +129,7 @@ const TradeCenter: React.FC = memo(() => {
     // handle exchange change
     const handleExchangeChange = useCallback((exchange: Exchange) => {
         setState(prevState => ({ ...prevState, currentExchange: exchange }));
-        // ❌ 使用API调用同步交易所状态
+        // ❌ use API to fetch the exchange data and update the state
         console.log('Selected exchange:', exchange);
     }, []);
 
@@ -151,7 +152,7 @@ const TradeCenter: React.FC = memo(() => {
             return;
         }
         setState(prevState => ({ ...prevState, currentPage: pageId, error: null }));
-        // 保存用户最后选择的页面到 localStorage
+        // save the user's last selected page to localStorage
         localStorage.setItem('trade_center_last_page', pageId);
         // relative path to guide
         console.log('Navigating to page:', `/trading_center/${pageId}`);
@@ -159,7 +160,7 @@ const TradeCenter: React.FC = memo(() => {
         console.log('Navigating to page:', pageId);
     }, [navigate, checkPermission]);
 
-    // ❌交易所数据，从后端API获取交易所数据，现在模拟
+    // ❌ exchange data, should be fetched from backend API, now mock data
     const exchanges = useMemo((): readonly Exchange[] => [
         {
             id: 'binance',

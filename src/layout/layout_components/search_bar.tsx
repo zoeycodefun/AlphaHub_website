@@ -2,12 +2,9 @@ import React, {useState, useCallback, useRef, memo} from 'react';
 import axios, {type CancelTokenSource } from 'axios';
 
 /**
- * 搜索栏组件：全局搜索的功能，全局搜索，在当前进入的界面显示搜索的东西，支持模糊匹配（智能搜索拓展）
- * 搜索结果以弹窗的形式出现，不占据主页面
- * 弹窗内有搜索栏，输入关键词后端调用模糊匹配数据库内容，搜索结果弹窗下方显示，支持滑动浏览
+ * search bar component
  */
 
-// 定义搜索结果的接口确保类型安全
 interface SearchResult {
     id: string;
     title: string;
@@ -16,20 +13,17 @@ interface SearchResult {
     url?: string;
 }
 
-// 定义API响应接口
 interface SearchApiResponse {
     results: SearchResult[];
     totalCount: number;
     searchQuery: string;
 }
 
-// 封装搜索逻辑以复用
 const useSearch = () => {
     const [results, setResults] = useState<SearchResult[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // 搜索函数：useCallback减少重渲染
     const search = useCallback(async (query: string, cancelToken: CancelTokenSource) => {
         if (!query.trim()){
             setError('The search query cannot be empty.');
@@ -40,13 +34,12 @@ const useSearch = () => {
         setResults([]);
 
         try {
-            // 后端API支持请求取消
             const response = await axios.get<SearchApiResponse>('/api/search/global', {
                 params: { query: query.trim()},
                 cancelToken: cancelToken.token,
-                timeout: 5000, // 设置请求超时时间为5秒
+                timeout: 5000,
             });
-            setResults(response.data.results); // 更新搜索结果
+            setResults(response.data.results);
         } catch (err) {
             if (axios.isCancel(err)) {
                 console.log('Search request canceled');
@@ -58,7 +51,6 @@ const useSearch = () => {
             setIsLoading(false);
         }
     }, []);
-    // 清空搜索状态
     const clearSearch = useCallback(() => {
         setResults([]);
         setError(null);
@@ -67,13 +59,12 @@ const useSearch = () => {
 
     return { results, isLoading, error, search, clearSearch, setError };
 };
-// 搜索栏组件：类型安全，性能优化，错误处理，可取消请求，无障碍支持
 
-const SearchBar: React.FC = memo(()=> { // 优化重渲染
+const SearchBar: React.FC = memo(()=> {
     const [ showSearchWindow, setShowSearchWindow] = useState(false);
     const [ searchKeywordQuery, setSearchKeywordQuery] = useState('');
     const { results, isLoading, error, search, clearSearch, setError } = useSearch();
-    const cancelTokenRef = useRef<CancelTokenSource | null>(null); // 改为useRef，初始为null
+    const cancelTokenRef = useRef<CancelTokenSource | null>(null);
     
     const openSearchWindow = useCallback(() => {
         setShowSearchWindow(true);
@@ -89,9 +80,8 @@ const SearchBar: React.FC = memo(()=> { // 优化重渲染
     }, []);
 
     const conductSearch = useCallback(() => {
-        // 执行搜索以后申请新的取消令牌
         const newCancelToken = axios.CancelToken.source();
-        cancelTokenRef.current = newCancelToken; // 执行新令牌引用
+        cancelTokenRef.current = newCancelToken;
         search(searchKeywordQuery, newCancelToken);
     }, [searchKeywordQuery, search])
 
@@ -108,18 +98,15 @@ const SearchBar: React.FC = memo(()=> { // 优化重渲染
         }
     }, [conductSearch, closeSearchWindow]);
 
-    // 搜索处理结果点击：‼️跳转逻辑拓展
     const handleResultClick = useCallback((result: SearchResult) => {
         if (result.url) {
             window.open(result.url, '_blank');
         }
-        // ‼️ 路由跳转与内容显示
         closeSearchWindow();
     }, [closeSearchWindow]);
 
     return (
         <>
-        {/** 顶栏搜索按钮（无障碍） */}
         <button
         onClick={openSearchWindow}
         className='p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors 
@@ -134,9 +121,8 @@ const SearchBar: React.FC = memo(()=> { // 优化重渲染
             </svg>
         </button>
 
-        {/** 搜索弹窗(Portal性能提升) */}
+        {/** search window */}
         {showSearchWindow && (
-            // 遮蔽罩
             <div
             className='fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-16 transition-opacity duration-300'
             onClick={closeSearchWindow}
@@ -144,12 +130,11 @@ const SearchBar: React.FC = memo(()=> { // 优化重渲染
             aria-modal='true'
             aria-labelledby='search-dialog-title'
             >
-                {/** 弹窗内容区 */}
+                {/** search window content */}
                 <div
                 className='w-full max-w-2xl bg-white rounded-lg shadow-2xl max-h-[80vh] overflow-hidden mx-4'
                 onClick={(event) => event.stopPropagation()}
                 >
-                    {/** 弹窗头部顶栏 */}
                     <header
                     className='flex items-center justify-between p-4 border-b border-gray-200 
                     bg-gray-50 rounded-t-lg 
@@ -168,7 +153,7 @@ const SearchBar: React.FC = memo(()=> { // 优化重渲染
                             </svg>
                         </button>
                     </header>
-                    {/** 搜索输入与输出区 */}
+                    {/** search input and output */}
                     <div className='p-4 border-b border-gray-200'>
                         <div className='flex gap-2'>
                             <div className='flex-1 relative'>
@@ -211,7 +196,6 @@ const SearchBar: React.FC = memo(()=> { // 优化重渲染
                                 )}
                              </button>
                         </div>
-                        {/** 错误信息显示 */}
                         {error && (
                             <p
                             id='search-error'
@@ -223,7 +207,7 @@ const SearchBar: React.FC = memo(()=> { // 优化重渲染
                         )}
                     </div>
 
-                    {/** 搜索结果显示区 */}
+                    {/** search result */}
                     <main
                     className='overflow-y-auto max-h-96 p-4 scrollbar-hide '
                     >
@@ -288,5 +272,5 @@ const SearchBar: React.FC = memo(()=> { // 优化重渲染
     );
 }) ;
 
-SearchBar.displayName = 'SearchBar'; // 调试
+SearchBar.displayName = 'SearchBar';
 export default SearchBar;

@@ -2,11 +2,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import React, { memo, useCallback, useMemo } from 'react';
 
-/**
- * 导航组件：仅显示桌面端水平滑动导航栏
- */
 
-// 接口定义
 interface NavigationItem {
     readonly id: string;
     readonly path: string;
@@ -16,7 +12,6 @@ interface NavigationItem {
     readonly disabled?: boolean;
 }
 
-// 导航配置：不可变性
 const NAVIGATION_CONFIG: readonly NavigationItem[] = [
     {
         id: 'dashboard',
@@ -62,7 +57,7 @@ const NAVIGATION_CONFIG: readonly NavigationItem[] = [
     },
 ] as const;
 
-// 单个导航组件接口
+
 interface NavigationItemProps {
     item: NavigationItem;
     isActive: boolean;
@@ -99,7 +94,7 @@ const NavigationItemComponents: React.FC<NavigationItemProps> = memo(({
 });
 NavigationItemComponents.displayName = 'NavigationItemComponents';
 
-// 主导航接口组件
+
 interface NavigationProps {
     className?: string;
 }
@@ -108,13 +103,11 @@ const Navigation: React.FC<NavigationProps> = memo(({
 }) => {
     const currentLocation = useLocation();
     const getIsNavigationItemActive = useCallback((item: NavigationItem): boolean => {
-        // 对于交易中心，支持嵌套路由匹配
         if (item.path === '/trading_center') {
             return currentLocation.pathname.startsWith('/trading_center');
         }
         return currentLocation.pathname === item.path;
     }, [currentLocation.pathname]);
-    // 过滤可用导航
     const availableItems = useMemo(() => {
         return NAVIGATION_CONFIG.filter(item => !item.disabled);
     }, []);
