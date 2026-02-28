@@ -6,6 +6,6 @@ interface LanguageState {
 }
 
 export const useLanguageStore = create<LanguageState>((set) => ({
-    currentLanguage: 'zh', // 默认语言为中文
+    currentLanguage: 'zh',
     setCurrentLanguage: (language) => set({ currentLanguage: language})
 }))

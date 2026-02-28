@@ -68,7 +68,7 @@ const TradeCenter: React.FC = memo(() => {
         if (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) {
             return savedPage;
         }
-        return 'contract_trading'; // 默认页面
+        return 'spot_trading'; // 默认页面
     }, []);
 
     // use separate types
