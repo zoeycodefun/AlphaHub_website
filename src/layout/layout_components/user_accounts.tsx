@@ -1,11 +1,27 @@
-// all accounts management
-
+// accounts management
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { X, Plus, Link, Settings, Trash2, Loader} from 'lucide-react'
+import { X, Plus, Link, Settings, Trash2, Loader, User, Mail, Phone, AlertTriangle} from 'lucide-react'
 
+// ❌❌ 用户信息加密后端存储，表单验证，实时反馈错误，API连接，，，根据后端调整
+
+
+// 类型定义（安全）
+interface PlatformUser {
+    id:  string;
+    username: string;
+    email?: string;
+    phone?: string;
+    nickname?: string;
+    avatar?: string;
+    role: string;
+    enabled: boolean;
+    emailVerified: boolean;
+    phoneVerified: boolean;
+    lastLoginAt?: string;
+}
 
 interface Exchange {
-    id: string;
+    id: string; // 交易所唯一标识符
     name: string; 
     type: 'CEX' | 'DEX' | 'OTHER';
     isConnected: boolean;
@@ -25,7 +41,7 @@ interface ExchangeAccount {
 type AccountType = 'CEX' | 'DEX' | 'OTHER';
 type operateWindowType = 'connect' | 'add' | 'manage' | null;
 
-
+// 常量定义
 const EXCHANGE_TYPES = {
     CEX: '中心化交易所',
     DEX: '去中心化交易所',
@@ -40,19 +56,125 @@ const EXCHANGES: Exchange[] = [
     { id: 'hyperliquid', name: 'Hyperliquid', type: 'DEX', isConnected: false},
 
     // OTHER
-];
 
-const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: () => void }> = ({
+];
+// platform user information component
+const PlatformUserInfo: React.FC<{
+    user: PlatformUser;
+    onEdit: () => void;
+}> = ({ user, onEdit }) => {
+    return (
+        <div className='bg-white border border-gray-100 rounded-lg p-4 mb-6'>
+            <div className='flex items-center justify-between mb-4'>
+                <p className='text-lg text-gray-900'>平台账户信息</p>
+                <button 
+                onClick={onEdit}
+                className='text-blue-600 hover:text-blue-800 text-sm'
+                >
+                    编辑
+                </button>
+            </div>
+            <div className='flex items-center space-x-4 '>
+                <div className='w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center'>
+                    {user.avatar ? (
+                        <img src={user.avatar} alt='photo' className='w-12 h-12 rounded-full '/>
+                    ) : (
+                        <User className='w-6 h-6 text-blue-600'/>
+                    )}
+                </div>
+                <div className='flex-1'>
+                    <div className='flex items-center space-x-2'>
+                        <span className='text-gray-900'>{user.nickname || user.username}</span>
+                        <span className={`px-2 py-1 text-xs rounded-full 
+                            ${user.enabled ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-800'}
+                            `}>
+                                {user.enabled ? 'Active' : 'Disabled'}
+                            </span>
+                            <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full'>
+                                {user.role}
+                            </span>
+                    </div>
+                    <div className='flex items-center space-x-4 mt-1 text-sm text-gray-600'>
+                        <div className='flex items-center space-x-1'>
+                            <User className='w-4 h-4 '/>
+                            <span>{user.username}</span>
+                        </div>
+                        {user.email && (
+                            <div className='flex items-center space-x-1'>
+                                <Mail className='w-4 h-4' />
+                                <span>{user.email}</span>
+                                {user.emailVerified && (
+                                    <span className='text-green-600'>✔️</span>
+                                )}
+                            </div>
+                        )}
+                        {user.phone && (
+                            <div className='flex items-center space-x-1'>
+                                <Phone className='w-4 h-4 '/>
+                                <span>{user.phone}</span>
+                                {user.phoneVerified && (
+                                    <span className='text-green-600'>✔️</span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {user.lastLoginAt && (
+                        <div className='text-xs text-gray-500 mt-1'>
+                            last login: {new Date(user.lastLoginAt).toLocaleString()}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+// platform login or registration information form component
+const PlatformAccountLoginRegisterRequired: React.FC<{
+    onBindPlatformAccount: () => void;
+}> = ({ onBindPlatformAccount }) => {
+    return (
+        <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
+            <div className='flex items-start space-x-3'>
+                <AlertTriangle className='w-5 h-5 text-blue-700 mt-0.5'/>
+                <div className='flex-1'>
+                    <p className='text-sm text-blue-800 mb-1'>
+                        请先登录或注册平台账户以连接交易所账户和使用更多功能
+                    </p>
+                    <p className='text-sm text-blue-700 mb-3'>
+                        您需要先创建或者绑定平台账号，才能绑定交易所账户进行交易
+                    </p>
+                    <button
+                    onClick={onBindPlatformAccount}
+                    className='px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors'
+                    >
+                        绑定平台账号
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+// user accounts management component: support CEX, DEX and OTHER accounts
+// function: connect account(with loading and error handling), add account, manage account(view accounts list and delete account)
+const UserAccounts: React.FC<{ 
+    openAccountWindow: boolean; 
+    closeAccountWindow: () => void;
+    currentUser?: PlatformUser;
+}> = ({
     openAccountWindow,
     closeAccountWindow,
+    currentUser
 }) => {
-    
     const [activeExchangeType, setActiveExchangeType] = useState<AccountType>('CEX');
     const [selectedExchange, setSelectedExchange] = useState<Exchange | null>(null);
     const [activeOperateWindow, setActiveOperateWindow] = useState<operateWindowType>(null);
     const [allAccounts, setAllAccounts] = useState<ExchangeAccount[]>([]);
 
     
+    // ❌❌ 组件挂载时从后端加载用户数据，数据库存储
     useEffect(() => {
         const savedAccounts = localStorage.getItem('exchangeAccounts');
         if (savedAccounts) {
@@ -72,25 +194,29 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
         }
     }, []);
 
+
+    // accounts data saving function
     const saveAccounts = useCallback((newAccounts: ExchangeAccount[]) => {
         setAllAccounts(newAccounts);
         localStorage.setItem('exchangeAccounts', JSON.stringify(newAccounts));
     }, []);
     
     
-    
+    // filter exchanges by labels
     const filteredExchanges = useMemo(
         () => EXCHANGES.filter((exchange) => exchange.type === activeExchangeType),
         [activeExchangeType]
     );
 
+
+    // get accounts of specific exchange function
     const getExchangeAccounts = useCallback(
         (exchangeId: string) => allAccounts.filter((account) => account.exchangeId === exchangeId),
         [allAccounts]
     );
 
     
-    // connect account function
+    // connect accounts handler with loading state and error handling
     const handleConnectAccount = useCallback(
         async (acc: ExchangeAccount) => {
             setAllAccounts((prevAccount) => (
@@ -101,7 +227,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                 )
             ));
             try {
-                
+                // ❌❌ 实际的API连接
                 await new Promise((reslove, reject) => {
                     setTimeout(() => Math.random() > 0.2 ? reslove(true) :
                 reject(new Error('Connection failded: Please check API credentials or network.')), 2000);
@@ -119,13 +245,13 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                     account.id === account.id ? { ...account, isConnecting: false} : account
                     )
                 );
-                
+                // ❌❌ 显示错误通知
             }
         }, [allAccounts, saveAccounts]
         );
 
 
-    // add account function
+    // add account handler
     const handleAddAccount = useCallback(
         (exchangeId: string, accountData: Partial<ExchangeAccount>) => {
             const newAccount: ExchangeAccount = {
@@ -141,19 +267,25 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
         [allAccounts, saveAccounts]
     );
 
-    // delete account function
+    // delete account handler
     const handleDeleteAccount = useCallback(
         (accountId: string) => {
             const updatedAccounts = allAccounts.filter((account) => account.id !== accountId);
             saveAccounts(updatedAccounts)
         }, [allAccounts, saveAccounts]
     );
+
+    // bind platform account handler
+    const handleBindPlatformAccount = useCallback(() => {
+        // ❌❌ 绑定平台账户的实际操作，可能是打开登录/注册弹窗，或者跳转到账户设置页等
+        console.log('Bind platform account');
+    }, []);
+
     if (!openAccountWindow) return null;
 
 
     return (
         <div>
-            
             <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
                 {/** main window */}
                 <div className='bg-white rounded-xl w-full h-full md:h-auto md:max-w-4xl md:max-h-[80vh] md:h-[80vh] overflow-hidden flex flex-col 
@@ -171,96 +303,118 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
                             <X className="w-6 h-6 md:w-7 md:h-7" />
                         </button>
                     </div>
-                    {/** window content */}
-                    <div className='w-full md:w-auto p-4 border-r md:border-r-0 md:border-b md:row-start-2'>
-                            <nav className='flex flex-col space-y-2'>
-                                {Object.entries(EXCHANGE_TYPES).map(([key, label]) => (
-                                    <button
-                                    key={key}
-                                    onClick={() => setActiveExchangeType(key as AccountType)}
-                                    className={`w-full md:w-auto p-3 text-left rounded-lg transiton-colors
-                                        ${activeExchangeType === key ?
-                                            'bg-blue-50'
-                                            :'hover:bg-gray-100 text-gray-700'
-                                        }`}
-                                    >
-                                        {label}
-                                    </button>
-                                ))}
-                            </nav>
-                    </div>
-                    <div className='flex-1 p-4 overflow-y-auto scrollbar-hide md:row-start-2 md:col-start-2 min-h-0 min-h-[300px]'>
-                        <h3 className='text-sm md:text-lg mb-4'>{EXCHANGE_TYPES[activeExchangeType]}列表</h3>
-                        <div className='space-y-4 overflow-y-auto'>
-                            {filteredExchanges.map((exchange)=> {
-                                const exchangeAccounts = getExchangeAccounts(exchange.id);
-                                return (
-                                    <div
-                                    key={exchange.id}
-                                    className='border rounded-lg p-4'
-                                    >
-                                        {/** exchange */}
-                                        <div className='flex flex-col justify-between items-start mb-4 '>
-                                            <div>
-                                                <div className='mb-2 flex flex-col '>
-                                                    <span className='text-sm md:text-lg'>{exchange.name}</span>
-                                                    <span>{exchangeAccounts.length}个账户</span>
-                                                </div>
-                                            </div>
-                                            <div className='flex flex-wrap gap-3'>
-                                                {/** connection */}
-                                                <button
-                                                onClick={() => {
-                                                    setSelectedExchange(exchange)
-                                                    setActiveOperateWindow('connect')
-                                                }}
-                                                className='flex items-center gap-2 px-3 py-2 md:px-4 md:py-2'
-                                                >
-                                                    <Link className='w-4 h-4'/>
-                                                    连接账户
-                                                    
-                                                </button>
-                                                {/** add account */}
-                                                <button
-                                                onClick={() => {
-                                                    setSelectedExchange(exchange)
-                                                    setActiveOperateWindow('add');
-                                                }}
-                                                className='flex items-center gap-2 px-3'
-                                                >
-                                                    <Plus className='w-4 h-4 '/>
-                                                    新增账户
-                                                </button>
-                                                {/** manage account */}
-                                                <button
-                                                onClick={() => {
-                                                    setSelectedExchange(exchange)
-                                                    setActiveOperateWindow('manage');
-                                                }}
-                                                className='flex items-center gap-2 px-3 py-2 md:py-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors'
-                                                >
-                                                    <Settings className='w-4 h-4'/>
-                                                    管理账户
-                                                </button>
-                                            </div>
-                                        </div>
-                                        {/** all connected accounts */}
-                                        {exchangeAccounts.length > 0 && (
-                                            <div
-                                            className='text-sm text-gray-600'
+                    {/** window content: platform users infomation + exchanges accounts management */}
+                    <div className='flex-1 p-4 overflow-y-auto'>
+                        {/** if no platform users, show bind account, sign or register first */}
+                        {!currentUser ? (
+                            <PlatformAccountLoginRegisterRequired
+                            onBindPlatformAccount={handleBindPlatformAccount}
+                            />
+                        ) : (
+                            <>
+                            {/** show platform user information */}
+                            <PlatformUserInfo
+                            user={currentUser}
+                            onEdit={() => console.log('edit user info')}
+                            />
+                            {/** exchanges accounts management area */}
+                            <div className='md:grid md:grid-cols-[1fr-3fr] md:gap-4'>
+                                {/** left: exchanges classfication list */}
+                                <div className='mb-4 md:mb-0'>
+                                    <nav className='flex flex-col space-y-2'>
+                                        {Object.entries(EXCHANGE_TYPES).map(([key, label]) => (
+                                            <button
+                                            key={key}
+                                            onClick={() => setActiveExchangeType(key as AccountType)}
+                                            className={`w-full md:w-auto p-3 text-left rounded-lg transition-colors
+                                                ${activeExchangeType === key ?
+                                                    'bg-blue-50' : 'hover:bg-gray-50 text-gray-800'
+                                                }
+                                                `}
                                             >
-                                                已连接账户：{exchangeAccounts.map(account => account.name).join(', ')}
-                                            </div>
-                                        )}
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </nav>
+                                </div>
+                                {/** right: exchanges list and related operation */}
+                                <div className='space-y-4'>
+                                    <p className='text-lg mb-4 '>{EXCHANGE_TYPES[activeExchangeType]}列表</p>
+                                    <div className='space-y-4'>
+                                        {filteredExchanges.map((exchange) => {
+                                            const exchangeAccounts = getExchangeAccounts(exchange.id);
+                                            return (
+                                                <div 
+                                                key={exchange.id}
+                                                className='border rounded-lg p-4'
+                                                >
+                                                    {/** exchange header */}
+                                                    <div className='flex flex-col justify-between items-start mb-4'>
+                                                        {/** left: exchange information  */}
+                                                        <div>
+                                                            <div className='mb-2 flex flex-col'>
+                                                                <span className='text-sm md:text-lg'>{exchange.name}</span>
+                                                                <span>{exchangeAccounts.length} 个账户</span>
+                                                            </div>
+                                                        </div>
+                                                        {/** right: operation buttons and attached popup hook */}
+                                                        <div className='flex flex-wrap gap-3'>
+                                                            {/** connect accounts */}
+                                                            <button
+                                                            onClick={() => {
+                                                                setSelectedExchange(exchange)
+                                                                setActiveOperateWindow('connect')
+                                                            }}
+                                                            className='flex items-center gap-2 px-3 py-2 md:px-4 md:py-2'
+                                                            >
+                                                                <Link className='w-4 h-4'/>
+                                                                连接账户
+                                                            </button>
+                                                            {/** add accounts */}
+                                                            <button
+                                                            onClick={() => {
+                                                                setSelectedExchange(exchange)
+                                                                setActiveOperateWindow('add');
+                                                            }}
+                                                            className='flex items-center gap-2 px-3'
+                                                            >
+                                                                <Plus className='w-4 h-4'/>
+                                                                新增账户
+                                                            </button>
+                                                            {/** manage accounts */}
+                                                            <button
+                                                            onClick={() => {
+                                                                setSelectedExchange(exchange)
+                                                                setActiveOperateWindow('manage');
+                                                            }}
+                                                            className='flex items-center gap-2 px-3 py-2 md:py-2 bg-gray-50 rounded-full hover:bg-gray-50 transition-colors'
+                                                            >
+                                                                <Settings className='w-4 h-4'/>
+                                                                管理账户
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    {/** connected accounts preview */}
+                                                    {exchangeAccounts.length > 0 && (
+                                                        <div
+                                                        className='text-sm text-gray-600'
+                                                        >
+                                                            已连接账户：{exchangeAccounts.map(account => account.name).join(', ')}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-                                );
-                            })}
-                        </div>
+                                </div>
+                            </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/** sub window of account window */}
+            {/** accounts sub windows: render active sub window based on state */}
             {activeOperateWindow === 'connect' && selectedExchange && (
                 <ConnectAccountSubWindow
                 exchange={selectedExchange}
@@ -287,7 +441,7 @@ const UserAccounts: React.FC<{ openAccountWindow: boolean; closeAccountWindow: (
         </div>
     );
 };
-// connect account window
+// connect account sub window component: user selects account to connect and execute action (connect existing account with loading and error handling)
 const ConnectAccountSubWindow: React.FC<{
     exchange: Exchange;
     accounts: ExchangeAccount[];
@@ -302,13 +456,13 @@ const ConnectAccountSubWindow: React.FC<{
     const [selectedAccountId, setSelectedAccountId] = useState<string>('');
     return (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
-            {/** window */}
+            {/** connect account sub window */}
             <div className='bg-white rounded-lg max-w-md w-full p-4 md:p-6 flex flex-col'>
                 <span className='text-lg mb-4'>连接{exchange.name}账户</span>
                 {accounts.length === 0 ? (
                     <span className='text-gray-600'>暂无可连接账户，请先新增账户</span>
                 ):(
-                    // select account form
+                    // if have accounts, show select and connect button
                     <div className='mb-4'>
                         <label className='block text-sm mb-2'>选择要连接的账户</label>
                         <select
@@ -352,7 +506,7 @@ const ConnectAccountSubWindow: React.FC<{
     );
 };
 
-// add account window
+// add accounts sub window component: user inputs account information to create new account (form with validation, error handling, and submit action)
 const AddAccountSubWindow: React.FC<{
     exchange: Exchange;
     onAdd: (accountData: Partial<ExchangeAccount>) => void;
@@ -362,6 +516,7 @@ const AddAccountSubWindow: React.FC<{
     onAdd,
     onClose
 }) => {
+    // ❌表单设置(加密存储与极度安全的设置)
     const [accountFormData, setAccountFormData] = useState({
         name: '',
         apiKey: '',
@@ -412,6 +567,7 @@ const AddAccountSubWindow: React.FC<{
                     />
                     {errors.name && <p className='text-red-500 text-sm mt-1'>{errors.name}</p>}
         
+                        {/** 有条件的渲染：中心化交易所API */}
                         {exchange.type === 'CEX' && (
                             <>
                             <div>
@@ -444,6 +600,7 @@ const AddAccountSubWindow: React.FC<{
                             </div>
                             </>
                         )}
+                        {/** render wallet address input for DEX or OTHER types */}
                         {exchange.type === 'DEX' || exchange.type === 'OTHER' ? (
                             <div>
                                 <label 
@@ -480,7 +637,7 @@ const AddAccountSubWindow: React.FC<{
         </div>
     );
 };
-// manage account
+// manage account sub window component: show accounts list with delete action
 const ManageAccountSubWindow: React.FC<{
     exchange: Exchange;
     accounts: ExchangeAccount[];
@@ -507,7 +664,7 @@ const ManageAccountSubWindow: React.FC<{
                     <span>暂无可管理账户，请先新增账户</span>
 
                 ):(
-                    
+                    // show accounts list for management
                     <div className='space-y-4'>
                         {accounts.map((account) => (
                             <div 
@@ -547,7 +704,7 @@ const ManageAccountSubWindow: React.FC<{
                     </button>
                 </div>
             </div>
-            {/** delete window */}
+            {/** delete confirm window */}
             {deleteConfirm && (
                 <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
                     <div className='bg-white rounded-lg max-w-sm w-full p-4 md:p-6'>
