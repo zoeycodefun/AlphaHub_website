@@ -1,11 +1,42 @@
-// accounts management
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { X, Plus, Link, Settings, Trash2, Loader, User, Mail, Phone, AlertTriangle} from 'lucide-react'
+/**
+ * user accounts management component
+ * use useAccountStore and backend API
+ * mainfunctions:
+ * 1. show platform user management panel and inform users to bind platform account
+ * 2. show platform account information or login inform
+ * 3. CEX accounts list(display, refresh, delete, connection test, add) and DEX accounts list
+ * 4. add account form (embedded CexAccountForm/DexAccountForm)
+ */
 
-// TODO: encrypt user info before sending to backend, perform form validation, provide real-time error feedback, integrate APIs, adjust according to backend
+import React, { useState, useEffect, useCallback } from 'react';
+import { 
+    X,
+    Plus,
+    Trash2,
+    Loader,
+    User,
+    Link,
+    Settings,
+    CheckCircle,
+    XCircle,
+    Zap,
+    RefreshCw,
+    Clock,
+    Mail,
+    Phone,
+    AlertTriangle
+} from 'lucide-react'
+import { useAccountStore } from '../../global_state_store/accounts_management_global_state_store';
+import {
+    type CexAccountResponse,
+    type DexAccountResponse
+} from '../../services/accounts_management_api.service'
+import CexAccountForm from './user_accounts_connections/CEX/cex_account_form';
+import DexAccountForm from './user_accounts_connections/DEX/dex_accounts_form';
+import { current } from '@reduxjs/toolkit';
 
-
-
+// type definitions
+// platform user information
 interface PlatformUser {
     id:  string;
     username: string;
@@ -19,6 +50,417 @@ interface PlatformUser {
     phoneVerified: boolean;
     lastLoginAt?: string;
 }
+// current opened window type: add CEX / add DEX
+type ModalType = 'add_cex' | 'add_dex' | null;
+
+// sub component: platform account information display 
+const PlatformUserInfo: React.FC<{
+    user: PlatformUser;
+    onEdit: () => void;
+}> = ({ user, onEdit }) => {
+    return (
+        <div className='bg-white border border-gray-100 rounded-lg p-4 mb-5'>
+            {/** header */}
+            <div className='flex items-center justify-between mb-3'>
+                <p className='text-sm text-gray-900'>Platform Account</p>
+                <button
+                onClick={onEdit}
+                className='text-blue-700 hover:text-blue-900 text-xs transition-colors'
+                >
+                    Edit
+                </button>
+            </div>
+            {/** user information main content */}
+            <div className='flex items-center gap-3'>
+                {/** photo */}
+                <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0'>
+                    {user.avatar ? (
+                        <img src={user.avatar} alt="avatar" className='w-10 h-10 rounded-full object-cover' />
+                    ):(
+                        <User className='w-5 h-5 text-blue-600' />
+                    )}
+                </div>
+                {/** user details */}
+                <div className='flex-1 min-w-0'>
+                    {/** username+enabled badge+role badge */}
+                    <div className='flex items-center gap-2 flex-wrap'>
+                        <span className='text-sm text-gray-900 truncate'>
+                            {user.nickname || user.username}
+                        </span>
+                        <span className={`px-2 py-1 text-xs rounded-full 
+                            ${user.enabled ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-800'}
+                        `}>
+                            {user.enabled ? 'Active' : 'Disabled'}
+                        </span>
+                        <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full'>
+                            {user.role}
+                        </span>
+                    </div>
+                    {/** username+email+phone(with validation icon) */}
+                    <div className='flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-gray-400'>
+                        <span className='flex items-center gap-1'>
+                            <User className='w-3 h-3'/>
+                            {user.username}
+                        </span>
+                        {user.email && (
+                            <span className='flex items-center gap-1'>
+                                <Mail className='w-3 h-3'/>
+                                {user.email}
+                                {user.emailVerified && (
+                                    <CheckCircle className='w-3 h-3 text-green-600'/>
+                                )}
+                            </span>
+                        )}
+                        {user.phone && (
+                            <span className='flex items-center gap-1'>
+                                <Phone className='w-3 h-3' />
+                                {user.phone}
+                                {user.phoneVerified && (
+                                    <CheckCircle className='w-3 h-3 text-green-600'/>
+                                )}
+                            </span>
+                        )}
+                    </div>
+                    {/** last login time */}
+                    {user.lastLoginAt && (
+                        <p className='text-xs text-gray-400 mt-1'>
+                            last login: {new Date(user.lastLoginAt).toLocaleString()}
+                        </p>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+// sub component 2: inform window when user do not login or register platform
+const PlatformAccountLoginRegisterRequired: React.FC<{
+    onBind: () => void;
+}> = ({ onBind }) => (
+    <div className='bg-blue-50 border border-blue-100 rounded-lg p-4 mb-5'>
+        <div className='flex items-center gap-3'>
+            <AlertTriangle className='w-5 h-5 text-blue-600 mt-1 flex-shrink-0'/>
+            <div>
+                {/** main alert content */}
+                <p className='text-sm text-blue-800 mb-1'>
+                    Please log in or register a platform account to connect exchange accounts and use more features.
+                </p>
+                {/** sub alert content */}
+                <p className='text-xs text-blue-700 mb-3'>
+                    A platform account is required to link exchange accounts for trading. Please create or bind a platform account first.
+                </p>
+                {/** action button */}
+                <button
+                onClick={onBind}
+                className='px-4 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors'
+                >
+                    Sign In / Register
+                </button>
+            </div>
+        </div>
+    </div>
+);
+// sub component 3: accounts connection status badge(according to the status and enabled characteristics to judge)
+const StatusBadge: React.FC<{
+    status: string;
+    enabled: boolean;
+}> = ({ status, enabled }) => {
+    if (!enabled) {
+        return (
+            <span className='flex items-center gap-1 text-xs text-gray-400'>
+                <XCircle className='w-3 h-3 '/>
+                Disabled
+            </span>
+        );
+    }
+    // status and their color and text mapping
+    const statusMap: Record<string, { label: string; colorClass: string }> = {
+        active: { label: 'Active', colorClass: 'text-green-600' },
+        inactive: { label: 'Inactive', colorClass: 'text-yellow-600' },
+        suspended: { label: 'Suspended', colorClass: 'text-red-600' },
+        expired: { label: 'Expired', colorClass: 'text-gray-600' },
+    };
+    // get configuration, default to gray
+    const config = statusMap[status] || ??{ label: status, colorClass: 'text-gray-600' };
+    return (
+        <span className={`flex items-center gap-1 text-xs ${config.colorClass}`}>
+            <CheckCircle className='w-3 h-3'/>
+            {config.label}
+        </span>
+    );
+};
+// sub component 4: CEX accounts card(display account information, connection test, delete action)
+const CexAccountCard: React.FC<{
+    account: CexAccountResponse;
+    onDelete: (accountId: number) => void;
+    onTest: (accountId: number) => void;
+    isTesting: boolean;
+}> = ({ account, onDelete, onTest, isTesting }) => {
+    // local status
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    return (
+        <div className='border border-gray-100 rounded-lg p-3 bg-white hover:border-gray-100 transition-colors'>
+            {/** account information+status badge */}
+            <div className='flex items-start justify-between gap-2'>
+                {/** account details information  */}
+                <div className='min-w-0 flex-1'>
+                    {/** account name */}
+                    <p className='text-sm text-gray-800 truncate'>
+                        {account.accountName}
+                    </p>
+                    {/** exchange name+account type+account environment */}
+                    <div className='flex items-center gap-2 mt-1 flex-wrap'>
+                        <span className='text-xs text-gray-500'>
+                            {account.exchangeDisplayName}
+                        </span>
+                        <span className='px-2 py-1 text-xs bg-gray-100 text-grau-700 rounded'>
+                            {account.accountType}
+                        </span>
+                        {account.accountEnvironment !== 'live' && (
+                            <span className='px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded'>
+                                {account.accountEnvironment}
+                            </span>
+                        )}
+                    </div>
+                    {/** API Key mask(backend just return masked key) */}
+                    {account.apiKeyMasked && (
+                        <p className='mt-1 text-xs text-gray-500 truncate'>
+                            API Key: {account.apiKeyMasked}
+                        </p>
+                    )}
+                    {/** last connected time */}
+                    {account.lastConnectedAt && (
+                        <p className='mt-1 text-xs text-gray-500 flex items-center gap-1'>
+                            <Clock className='w-3 h-3' />
+                            {new Date(account.lastConnectedAt).toLocaleString()}
+                        </p>
+                    )}
+                </div>
+                {/** right: connection status badge */}
+                <StatusBadge status={account.status} enabled={account.enabled} />
+            </div>
+            {/** bottom: action buttons */}
+            <div className='flex items-center gap-2 mt-3'>
+                {/** connection test button */}
+                <button
+                onClick={() => onTest(account.id)}
+                disabled={isTesting}
+                className='flex items-center gap-1 px-3 py-2 text-xs bg-blue-50 text-blue-700 
+                rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50'
+                >
+                    {isTesting 
+                    ? <Loader className='w-3 h-3 animate-spin' />
+                    : <Zap className='w-3 h-3' />}
+                    {isTesting ? 'Testing...' : 'Test Connection'}
+                </button>
+                {/** delete button */}
+                {!confirmDelete ? (
+                    <button
+                    onClick={() => setConfirmDelete(true)}
+                    className='flex items-center gap-1 px-3 py-2 text-xs bg-gray-50 text-gray-600
+                    rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors
+                    '
+                    >
+                        <Trash2 className='w-3 h-3 '/>
+                        Delete
+                    </button>
+                ) : (
+                    // second confirmation
+                    <div className='flex items-center gap-2'>
+                        <span className='text-xs text-red-600'>Sure to delete?</span>
+                        {/** confirm delete */}
+                        <button
+                        onClick={() => {
+                            onDelete(account.id)
+                            setConfirmDelete(false);
+                        }}
+                        className='px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors'
+                        >
+                            YES
+                        </button>
+                        {/** cancel delete */}
+                        <button 
+                        onClick={() => setConfirmDelete(false)}
+                        className='px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors'
+                        >NO</button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+// sub component 5: DEX accounts card(display account information, delete action)
+const DexAccountCard: React.FC<{
+    account: DexAccountResponse;
+    onDelete: (accountId: number) => void;
+    onTest: (accountId: number) => void;
+    isTesting: boolean;
+}> = ({ account, onDelete, onTest, isTesting }) => {
+    // local status
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    // wallet address display with middle part masked
+    const shortAddress = account.walletAddress.length > 12
+    ? `${account.walletAddress.slice(0, 6)}...${account.walletAddress.slice(-4)}`
+    : account.walletAddress;
+    return (
+        <div className='border border-fray-50 rounded-lg p-3 bg-white hover:border-gray-100 transition-colors'>
+            {/** account information+status */}
+            <div className='flex items-start justify-between gap-2'>
+                {/** DEX platform name */}
+                <p className='text-sm text-gray-800'>
+                    {account.dexPlatform 
+                    ? account.dexPlatform.charAt(0).toUpperCase() + account.dexPlatform.slice(1)
+                : account.blockchainWebsiteDisplayName}
+                </p>
+                {/** chain name+wallet type */}
+                <div className='flex items-center gap-2 mt-1 flex-wrap'>
+                    <span className='text-xs text-gray-600'>
+                        {account.blockchainWebsiteDisplayName}
+                    </span>
+                    <span className='px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded'>
+                        {account.walletType}
+                    </span>
+                </div>
+                {/** wallet address */}
+                <p
+                className='mt-1 text-xs text-gray-400 '
+                title={account.walletAddress}
+                >
+                    {shortAddress}
+                </p>
+                {/** last connection time */}
+                {account.lastConnectedAt && (
+                    <p className='mt-1 text-xs text-gray-500 flex items-center gap-1'>
+                        <Clock className='w-3 h-3'/>
+                        {new Date(account.lastConnectedAt).toLocaleString()}
+                    </p>
+                )}
+                {/** connection status badge */}
+                <StatusBadge status={account.status} enabled={account.enabled} />
+            </div>
+            {/** action buttons */}
+            <div className='flex items-center gap-2 mt-3'>
+                <button
+                onClick={() => onTest(account.id)}
+                disabled={isTesting}
+                className='flex items-center gap-1 px-3 py-2 text-xs bg-blue-50 text-blue-700
+                rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50
+                '
+                >
+                    {isTesting
+                    ? <Loader className='w-3 h-3 animate-spin'/>
+                : <Zap className='h-3 w-3 ' />}
+                {isTesting ? 'Testing...' : 'Test Connection'}
+                </button>
+                {/** delete button+second confirmation */}
+                {!confirmDelete ? (
+                    <button
+                    onClick={() => setConfirmDelete(true)}
+                    className='flex items-center gap-1 px-3 py-2 text-xs bg-gray-50 text-gray-600
+                    rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors
+                    '
+                    >
+                        <Trash2 className='w-3 h-3 '/>
+                        Delete
+                    </button>
+                ) : (
+                    <div className='flex items-center gap-2'>
+                        <span className='text-xs text-red-600 '>Sure to delete?</span>
+                        <button
+                        onClick={() => { onDelete(account.id); setConfirmDelete(false) }}
+                        className='px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors'
+                        >
+                            YES
+                        </button>
+                        <button
+                        onClick={() => setConfirmDelete(false)}
+                        className='px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-300 transition-colors'
+                        >
+                            NO
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+// sub component 6: add account window(modal container), render CexAccountForm or DexAccountForm according to the exchange type
+const AddAccountModal: React.FC<{
+    type: 'cex' | 'dex';
+    onClose: () => void;
+}> = ({ type, onClose }) => (
+    // background overlay with click to close
+    <div
+    className='fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60] p-4'
+    onClick={onClose}
+    >
+        {/** modal content container */}
+        <div className='bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto '
+        onClick={(event) => event.stopPropagation()}
+        >
+            {/** model title */}
+            <div className='flex items-center justify-between mb-5'>
+                <p className='text-gray-900 text-sm'>
+                    {type === 'cex' ? 'Add Centralized Exchange Account' : 'Add Decentralized Exchange Account'}
+                </p>
+                {/** close button */}
+                <button
+                onClick={onClose}
+                className='p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors'
+                aria-label='Close'
+                >
+                    <X className='w-4 h-4'/>
+                </button>
+            </div>
+            {/** render form component according to type */}
+            {type === 'cex' ? (
+                <CexAccountForm onSuccess={onClose} onCancel={onClose}/>
+            ) : (
+                <DexAccountForm onSuccess={onClose} onCancel={onClose}/>
+            )}
+        </div>
+    </div>
+);
+
+// main component: user accounts(accept openAccountWindow and closeAccountWindow, currentUser props from Layout)
+const UserAccounts: React.FC<{
+    openAccountWindow: boolean;
+    closeAccountWindow: () => void;
+    currentUser?: PlatformUser;
+}> = ({ openAccountWindow, closeAccountWindow, currentUser }) => {
+    // unpack all states from Zustand store
+    const {
+        cexAccounts,
+        dexAccounts,
+        isLoadingCex,
+        isLoadingDex,
+        isSubmitting, // if has form is submitting, avoid submit again
+        testingConnectionIds,
+        cexError,
+        dexError,
+        fetchCexAccounts,
+        fetchDexAccounts,
+        deleteCexAccount,
+        deleteDexAccount,
+        testCexAccountConnection,
+        testDexAccountConnection,
+        clearErrors
+    } = useAccountStore();
+    // type of current opened window
+    const [modal, setModal] = useState<ModalType>(null)
+    const [testResults, setTestResults] = useState<Record<number, { success: boolean; message: string }>>({});
+    // if modal opened and user has logined, fetch account data from backend 
+    useEffect(() => {
+        if (openAccountWindow && currentUser) {
+            fetchCexAccounts();
+            fetchDexAccounts();
+        }
+    }, [openAccountWindow, currentUser, fetchCexAccounts, fetchDexAccounts]);
+    // 
+}
+
+
+
+
 
 interface Exchange {
     id: string;
