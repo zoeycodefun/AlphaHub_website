@@ -40,7 +40,9 @@ interface AccountState {
     deleteCexAccount: (id: number) => Promise<void>;
     deleteDexAccount: (id: number) => Promise<void>;
     testCexAccountConnection: (id: number) => Promise<{ success: boolean; message: string }>;
-    testDexAccountConnection: (id: number) => Promise<{ success: boolean; message: string }>;
+    testDexAccountConnection: (id: number) => Promise<{
+        errorMessage: string; success: boolean; message: string 
+}>;
     clearErrors: () => void;
 }
 // util function to handle API errors and extract error messages
