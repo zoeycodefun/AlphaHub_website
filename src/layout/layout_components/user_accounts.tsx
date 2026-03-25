@@ -48,18 +48,56 @@ type ConnectionTestResult = {
 const PlatformUserInfo: React.FC<{
     user: AuthUser;
     onEdit: () => void;
-}> = ({ user, onEdit }) => {
+    onLogout: () => void;
+}> = ({ user, onEdit, onLogout }) => {
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    
     return (
         <div className='bg-white border border-gray-100 rounded-lg p-4 mb-5'>
             {/** header */}
             <div className='flex items-center justify-between mb-3'>
                 <p className='text-sm text-gray-900'>Platform Account</p>
-                <button
-                onClick={onEdit}
-                className='text-blue-700 hover:text-blue-900 text-xs transition-colors'
-                >
-                    Edit
-                </button>
+                <div className='flex items-center gap-2'>
+                    <button
+                    onClick={onEdit}
+                    className='text-blue-700 hover:text-blue-900 text-xs transition-colors'
+                    >
+                        Edit
+                    </button>
+                    <button
+                    onClick={onLogout}
+                    className='text-gray-600 hover:text-gray-900 text-xs transition-colors'
+                    >
+                        Logout
+                    </button>
+                    {!showDeleteConfirm ? (
+                        <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className='text-red-600 hover:text-red-800 text-xs transition-colors'
+                        >
+                            Delete Account
+                        </button>
+                    ) : (
+                        <div className='flex items-center gap-1'>
+                            <button
+                            onClick={() => {
+                                // TODO: 实现删除账户 API
+                                alert('Delete account API not yet implemented');
+                                setShowDeleteConfirm(false);
+                            }}
+                            className='px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700'
+                            >
+                                Confirm
+                            </button>
+                            <button
+                            onClick={() => setShowDeleteConfirm(false)}
+                            className='px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300'
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
             {/** user information main content */}
             <div className='flex items-center gap-3'>
@@ -387,8 +425,8 @@ const AddAccountModal: React.FC<{
         >
             {/** model title */}
             <div className='flex items-center justify-between mb-5'>
-                <p className='text-gray-900 text-sm'>
-                    {type === 'cex' ? 'Add Centralized Exchange Account' : 'Add Decentralized Exchange Account'}
+                <p className='text-gray-900 text-sm p-4'>
+                    {type === 'cex' ? 'Add CEX Account' : 'Add DEX Account'}
                 </p>
                 {/** close button */}
                 <button
@@ -444,6 +482,14 @@ const UserAccounts: React.FC<{
         }
     }, [openAccountWindow, currentUser, fetchCexAccounts, fetchDexAccounts]);
     // dependent array: restart when openAccountWindow or currentUser changes, to ensure data is up to date when user open the account management window
+
+    // auto-refresh account lists after page reload or login
+    useEffect(() => {
+        if (currentUser) {
+            fetchCexAccounts();
+            fetchDexAccounts();
+        }
+    }, [currentUser, fetchCexAccounts, fetchDexAccounts]);
 
     // close modal handler: clear form status and errors
     const handleCloseModal = useCallback(() => {
@@ -532,8 +578,15 @@ const UserAccounts: React.FC<{
                         <PlatformUserInfo
                         user={currentUser}
                         onEdit={() => {
-                            // ❌ 打开平台账户编辑弹窗
-                            console.log('edit platform user');
+                            // TODO: 实现编辑平台账户功能（需要后端编辑用户 API）
+                            alert('User profile editing feature is under development.\nPlease use the admin panel to modify user information.');
+                        }}
+                        onLogout={() => {
+                            if (confirm('Are you sure you want to logout?')) {
+                                userAuthStore.getState().logout();
+                                // 清空账户数据
+                                clearErrors();
+                            }
                         }}
                         />
                         {/** ================CEX accounts content=============== */}
@@ -562,7 +615,7 @@ const UserAccounts: React.FC<{
                                 onClick={() => setModal('add-cex')}
                                 disabled={isSubmitting}
                                 className='flex items-center gap-1 px-3 py-2 text-xs
-                                bg-blue-50 text-white rounded-lg hover:bg-blue-500
+                                bg-blue-500 text-white rounded-lg hover:bg-blue-600
                                 transition-colors disabled:opacity-50
                                 '
                                 >
