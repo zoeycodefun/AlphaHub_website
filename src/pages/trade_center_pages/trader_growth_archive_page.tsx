@@ -17,10 +17,9 @@
  *  - 仅展示当天档案，历史可浏览/导出
  *  - 数据留存一年
  */
-import React, { useState, useCallback, memo, Suspense } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import type {
     TradeJournalEntry,
-    DailyArchiveSummary,
     TradeEmotion,
     DisciplineCompliance,
     TradePatternTag,
@@ -77,27 +76,6 @@ const MOCK_ENTRIES: TradeJournalEntry[] = [
     },
 ];
 
-const MOCK_SUMMARY: DailyArchiveSummary = {
-    date: TODAY,
-    totalTrades: 2,
-    dailyPnl: 50,
-    winRate: 50,
-    emotionDistribution: { calm: 0, excited: 0, anxious: 1, fearful: 0, greedy: 0, frustrated: 0, confident: 1, hesitant: 0 },
-    avgStressLevel: 5,
-    complianceRate: 50,
-    patternStats: {} as Record<TradePatternTag, number>,
-    entries: MOCK_ENTRIES,
-};
-
-// ─── 加载占位 ──────────────────────────────────────────────────
-function LoadingPanel({ className = '' }: { className?: string }) {
-    return (
-        <div className={`bg-card rounded-lg animate-pulse flex items-center justify-center ${className}`}>
-            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-    );
-}
-
 // =========================================================================
 // 新增档案弹窗
 // =========================================================================
@@ -110,8 +88,8 @@ interface JournalModalProps {
 const JournalEntryModal: React.FC<JournalModalProps> = memo(({ isOpen, onClose, onSave }) => {
     const [form, setForm] = useState({
         symbol: 'BTC/USDT',
-        marketType: 'spot' as const,
-        side: 'buy' as const,
+        marketType: 'spot' as 'spot' | 'futures',
+        side: 'buy' as 'buy' | 'sell',
         entryPrice: 0,
         exitPrice: 0,
         amount: 0,

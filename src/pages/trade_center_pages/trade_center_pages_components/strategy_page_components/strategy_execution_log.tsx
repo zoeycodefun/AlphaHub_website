@@ -8,7 +8,7 @@
  *  - 风控拒绝原因
  */
 import React, { memo } from 'react';
-import type { StrategyExecutionLog as LogType } from '../../../type/alpha_module_types';
+import type { StrategyExecutionLog as LogType } from '../../type/alpha_module_types';
 
 // =========================================================================
 // 常量
