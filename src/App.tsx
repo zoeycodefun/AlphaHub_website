@@ -6,13 +6,14 @@ const Dashboard = lazy(() => import('./pages/dashboard'));
 const MarketIntelligence = lazy(() => import('./pages/market_intelligence'));
 const InvestResearch = lazy(() => import('./pages/invest_research'));
 const TradeCenter = lazy(() => import('./pages/trade_center'));
+const AiModelTraining = lazy(() => import('./pages/ai_model_training_page'));
 
 
 const PageLoader: React.FC = memo(() => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="flex flex-col items-center space-y-4">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      <p className="text-gray-500 text-sm">Loading...</p>
+      <p className="text-dim text-sm">Loading...</p>
     </div>
   </div>
 ));
@@ -49,16 +50,16 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50">
-          <div className="max-w-md p-8 bg-white rounded-lg shadow-lg">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-            <p className="text-gray-600 mb-4">
+        <div className="flex items-center justify-center min-h-screen bg-base">
+          <div className="max-w-md p-8 bg-card rounded-lg shadow-lg border border-base">
+            <h1 className="text-2xl font-bold text-red-400 mb-4">Error</h1>
+            <p className="text-muted mb-4">
               Error, something went wrong. Please try refreshing the page.
             </p>
             {this.state.error && (
-              <details className="text-sm text-gray-500">
+              <details className="text-sm text-dim">
                 <summary className="cursor-pointer mb-2">Error Details</summary>
-                <pre className="bg-gray-100 p-2 rounded overflow-auto">
+                <pre className="bg-surface p-2 rounded overflow-auto text-secondary">
                   {this.state.error.toString()}
                 </pre>
               </details>
@@ -90,6 +91,7 @@ const App: React.FC = () => {
               <Route path="market_intelligence" element={<MarketIntelligence />} />
               <Route path="investment_research" element={<InvestResearch />} />
               <Route path="trading_center/*" element={<TradeCenter />} />
+              <Route path="ai_model_training" element={<AiModelTraining />} />
             </Route>
           </Routes>
         </Suspense>

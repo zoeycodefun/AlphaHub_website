@@ -53,20 +53,20 @@ const PlatformUserInfo: React.FC<{
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     
     return (
-        <div className='bg-white border border-gray-100 rounded-lg p-4 mb-5'>
+        <div className='bg-card border border-base rounded-lg p-4 mb-5'>
             {/** header */}
             <div className='flex items-center justify-between mb-3'>
-                <p className='text-sm text-gray-900'>Platform Account</p>
+                <p className='text-sm text-primary'>Platform Account</p>
                 <div className='flex items-center gap-2'>
                     <button
                     onClick={onEdit}
-                    className='text-blue-700 hover:text-blue-900 text-xs transition-colors'
+                    className='text-blue-400 hover:text-blue-900 text-xs transition-colors'
                     >
                         Edit
                     </button>
                     <button
                     onClick={onLogout}
-                    className='text-gray-600 hover:text-gray-900 text-xs transition-colors'
+                    className='text-muted hover:text-primary text-xs transition-colors'
                     >
                         Logout
                     </button>
@@ -91,7 +91,7 @@ const PlatformUserInfo: React.FC<{
                             </button>
                             <button
                             onClick={() => setShowDeleteConfirm(false)}
-                            className='px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300'
+                            className='px-2 py-1 bg-surface-hover text-secondary text-xs rounded hover:bg-surface-hover'
                             >
                                 Cancel
                             </button>
@@ -102,7 +102,7 @@ const PlatformUserInfo: React.FC<{
             {/** user information main content */}
             <div className='flex items-center gap-3'>
                 {/** photo */}
-                <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0'>
+                <div className='w-10 h-10 bg-blue-900/40 rounded-full flex items-center justify-center flex-shrink-0'>
                     {user.avatar ? (
                         <img src={user.avatar} alt="avatar" className='w-10 h-10 rounded-full object-cover' />
                     ):(
@@ -113,20 +113,20 @@ const PlatformUserInfo: React.FC<{
                 <div className='flex-1 min-w-0'>
                     {/** username+enabled badge+role badge */}
                     <div className='flex items-center gap-2 flex-wrap'>
-                        <span className='text-sm text-gray-900 truncate'>
+                        <span className='text-sm text-primary truncate'>
                             {user.nickname || user.username}
                         </span>
                         <span className={`px-2 py-1 text-xs rounded-full 
-                            ${user.enabled ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-800'}
+                            ${user.enabled ? 'bg-green-900/40 text-green-900' : 'bg-red-900/40 text-red-800'}
                         `}>
                             {user.enabled ? 'Active' : 'Disabled'}
                         </span>
-                        <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full'>
+                        <span className='px-2 py-1 text-xs bg-blue-900/40 text-blue-300 rounded-full'>
                             {user.role}
                         </span>
                     </div>
                     {/** username+email+phone(with validation icon) */}
-                    <div className='flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-gray-400'>
+                    <div className='flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-muted'>
                         <span className='flex items-center gap-1'>
                             <User className='w-3 h-3'/>
                             {user.username}
@@ -149,7 +149,7 @@ const PlatformUserInfo: React.FC<{
                     </div>
                     {/** last login time */}
                     {user.lastLoginAt && (
-                        <p className='text-xs text-gray-400 mt-1'>
+                        <p className='text-xs text-muted mt-1'>
                             last login: {new Date(user.lastLoginAt).toLocaleString()}
                         </p>
                     )}
@@ -162,16 +162,16 @@ const PlatformUserInfo: React.FC<{
 const PlatformAccountLoginRegisterRequired: React.FC<{
     onBind: () => void;
 }> = ({ onBind }) => (
-    <div className='bg-blue-50 border border-blue-100 rounded-lg p-4 mb-5'>
+    <div className='bg-blue-900/30 border border-blue-100 rounded-lg p-4 mb-5'>
         <div className='flex items-center gap-3'>
             <AlertTriangle className='w-5 h-5 text-blue-600 mt-1 flex-shrink-0'/>
             <div>
                 {/** main alert content */}
-                <p className='text-sm text-blue-800 mb-1'>
+                <p className='text-sm text-blue-300 mb-1'>
                     Please log in or register a platform account to connect exchange accounts and use more features.
                 </p>
                 {/** sub alert content */}
-                <p className='text-xs text-blue-700 mb-3'>
+                <p className='text-xs text-blue-400 mb-3'>
                     A platform account is required to link exchange accounts for trading. Please create or bind a platform account first.
                 </p>
                 {/** action button */}
@@ -192,7 +192,7 @@ const StatusBadge: React.FC<{
 }> = ({ status, enabled }) => {
     if (!enabled) {
         return (
-            <span className='flex items-center gap-1 text-xs text-gray-400'>
+            <span className='flex items-center gap-1 text-xs text-muted'>
                 <XCircle className='w-3 h-3 '/>
                 Disabled
             </span>
@@ -203,10 +203,10 @@ const StatusBadge: React.FC<{
         active: { label: 'Active', colorClass: 'text-green-600' },
         inactive: { label: 'Inactive', colorClass: 'text-yellow-600' },
         suspended: { label: 'Suspended', colorClass: 'text-red-600' },
-        expired: { label: 'Expired', colorClass: 'text-gray-600' },
+        expired: { label: 'Expired', colorClass: 'text-muted' },
     };
     // get configuration, default to gray
-    const config = statusMap[status] || { label: status, colorClass: 'text-gray-600' };
+    const config = statusMap[status] || { label: status, colorClass: 'text-muted' };
     return (
         <span className={`flex items-center gap-1 text-xs ${config.colorClass}`}>
             <CheckCircle className='w-3 h-3'/>
@@ -224,21 +224,21 @@ const CexAccountCard: React.FC<{
     // local status
     const [confirmDelete, setConfirmDelete] = useState(false);
     return (
-        <div className='border border-gray-100 rounded-lg p-3 bg-white hover:border-gray-100 transition-colors'>
+        <div className='border border-base rounded-lg p-3 bg-card hover:border-base transition-colors'>
             {/** account information+status badge */}
             <div className='flex items-start justify-between gap-2'>
                 {/** account details information  */}
                 <div className='min-w-0 flex-1'>
                     {/** account name */}
-                    <p className='text-sm text-gray-800 truncate'>
+                    <p className='text-sm text-primary truncate'>
                         {account.accountName}
                     </p>
                     {/** exchange name+account type+account environment */}
                     <div className='flex items-center gap-2 mt-1 flex-wrap'>
-                        <span className='text-xs text-gray-500'>
+                        <span className='text-xs text-dim'>
                             {account.exchangeDisplayName}
                         </span>
-                        <span className='px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded'>
+                        <span className='px-2 py-1 text-xs bg-surface-hover/50 text-secondary rounded'>
                             {account.accountType}
                         </span>
                         {account.accountEnvironment !== 'live' && (
@@ -249,13 +249,13 @@ const CexAccountCard: React.FC<{
                     </div>
                     {/** API Key mask(backend just return masked key) */}
                     {account.apiKeyMasked && (
-                        <p className='mt-1 text-xs text-gray-500 truncate'>
+                        <p className='mt-1 text-xs text-dim truncate'>
                             API Key: {account.apiKeyMasked}
                         </p>
                     )}
                     {/** last connected time */}
                     {account.lastConnectedAt && (
-                        <p className='mt-1 text-xs text-gray-500 flex items-center gap-1'>
+                        <p className='mt-1 text-xs text-dim flex items-center gap-1'>
                             <Clock className='w-3 h-3' />
                             {new Date(account.lastConnectedAt).toLocaleString()}
                         </p>
@@ -270,8 +270,8 @@ const CexAccountCard: React.FC<{
                 <button
                 onClick={() => onTest(account.id)}
                 disabled={isTesting}
-                className='flex items-center gap-1 px-3 py-2 text-xs bg-blue-50 text-blue-700 
-                rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50'
+                className='flex items-center gap-1 px-3 py-2 text-xs bg-blue-900/30 text-blue-400 
+                rounded-lg hover:bg-blue-900/40 transition-colors disabled:opacity-50'
                 >
                     {isTesting 
                     ? <Loader className='w-3 h-3 animate-spin' />
@@ -282,8 +282,8 @@ const CexAccountCard: React.FC<{
                 {!confirmDelete ? (
                     <button
                     onClick={() => setConfirmDelete(true)}
-                    className='flex items-center gap-1 px-3 py-2 text-xs bg-gray-50 text-gray-600
-                    rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors
+                    className='flex items-center gap-1 px-3 py-2 text-xs bg-surface text-muted
+                    rounded-lg hover:bg-red-900/30 hover:text-red-600 transition-colors
                     '
                     >
                         <Trash2 className='w-3 h-3 '/>
@@ -299,14 +299,14 @@ const CexAccountCard: React.FC<{
                             onDelete(account.id)
                             setConfirmDelete(false);
                         }}
-                        className='px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors'
+                        className='px-2 py-1 text-xs bg-red-900/300 text-white rounded hover:bg-red-600 transition-colors'
                         >
                             YES
                         </button>
                         {/** cancel delete */}
                         <button 
                         onClick={() => setConfirmDelete(false)}
-                        className='px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors'
+                        className='px-2 py-1 text-xs bg-surface-hover text-muted rounded hover:bg-surface-hover transition-colors'
                         >NO</button>
                     </div>
                 )}
@@ -328,34 +328,34 @@ const DexAccountCard: React.FC<{
     ? `${account.walletAddress.slice(0, 6)}...${account.walletAddress.slice(-4)}`
     : account.walletAddress;
     return (
-        <div className='border border-gray-100 rounded-lg p-3 bg-white hover:border-gray-100 transition-colors'>
+        <div className='border border-base rounded-lg p-3 bg-card hover:border-base transition-colors'>
             {/** account information+status */}
             <div className='flex items-start justify-between gap-2'>
                 {/** DEX platform name */}
-                <p className='text-sm text-gray-800'>
+                <p className='text-sm text-primary'>
                     {account.dexPlatform 
                     ? account.dexPlatform.charAt(0).toUpperCase() + account.dexPlatform.slice(1)
                 : account.blockchainWebsiteDisplayName}
                 </p>
                 {/** chain name+wallet type */}
                 <div className='flex items-center gap-2 mt-1 flex-wrap'>
-                    <span className='text-xs text-gray-600'>
+                    <span className='text-xs text-muted'>
                         {account.blockchainWebsiteDisplayName}
                     </span>
-                    <span className='px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded'>
+                    <span className='px-2 py-1 text-xs bg-surface-hover/50 text-muted rounded'>
                         {account.walletType}
                     </span>
                 </div>
                 {/** wallet address */}
                 <p
-                className='mt-1 text-xs text-gray-400 '
+                className='mt-1 text-xs text-muted '
                 title={account.walletAddress}
                 >
                     {shortAddress}
                 </p>
                 {/** last connection time */}
                 {account.lastConnectedAt && (
-                    <p className='mt-1 text-xs text-gray-500 flex items-center gap-1'>
+                    <p className='mt-1 text-xs text-dim flex items-center gap-1'>
                         <Clock className='w-3 h-3'/>
                         {new Date(account.lastConnectedAt).toLocaleString()}
                     </p>
@@ -368,8 +368,8 @@ const DexAccountCard: React.FC<{
                 <button
                 onClick={() => onTest(account.id)}
                 disabled={isTesting}
-                className='flex items-center gap-1 px-3 py-2 text-xs bg-blue-50 text-blue-700
-                rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50
+                className='flex items-center gap-1 px-3 py-2 text-xs bg-blue-900/30 text-blue-400
+                rounded-lg hover:bg-blue-900/40 transition-colors disabled:opacity-50
                 '
                 >
                     {isTesting
@@ -381,8 +381,8 @@ const DexAccountCard: React.FC<{
                 {!confirmDelete ? (
                     <button
                     onClick={() => setConfirmDelete(true)}
-                    className='flex items-center gap-1 px-3 py-2 text-xs bg-gray-50 text-gray-600
-                    rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors
+                    className='flex items-center gap-1 px-3 py-2 text-xs bg-surface text-muted
+                    rounded-lg hover:bg-red-900/30 hover:text-red-600 transition-colors
                     '
                     >
                         <Trash2 className='w-3 h-3 '/>
@@ -393,13 +393,13 @@ const DexAccountCard: React.FC<{
                         <span className='text-xs text-red-600 '>Sure to delete?</span>
                         <button
                         onClick={() => { onDelete(account.id); setConfirmDelete(false) }}
-                        className='px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors'
+                        className='px-2 py-1 text-xs bg-red-900/300 text-white rounded hover:bg-red-600 transition-colors'
                         >
                             YES
                         </button>
                         <button
                         onClick={() => setConfirmDelete(false)}
-                        className='px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-300 transition-colors'
+                        className='px-2 py-1 text-xs bg-surface-hover/50 text-muted rounded hover:bg-surface-hover transition-colors'
                         >
                             NO
                         </button>
@@ -420,18 +420,18 @@ const AddAccountModal: React.FC<{
     onClick={onClose}
     >
         {/** modal content container */}
-        <div className='bg-white rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto '
+        <div className='bg-card rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto '
         onClick={(event) => event.stopPropagation()}
         >
             {/** model title */}
             <div className='flex items-center justify-between mb-5'>
-                <p className='text-gray-900 text-sm p-4'>
+                <p className='text-primary text-sm p-4'>
                     {type === 'cex' ? 'Add CEX Account' : 'Add DEX Account'}
                 </p>
                 {/** close button */}
                 <button
                 onClick={onClose}
-                className='p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors'
+                className='p-2 rounded-lg text-muted hover:text-muted hover:bg-surface-hover/50 transition-colors'
                 aria-label='Close'
                 >
                     <X className='w-4 h-4'/>
@@ -549,16 +549,16 @@ const UserAccounts: React.FC<{
         {/** main accounts management modal */}
         <div className='fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50'>
             {/** modal main content */}
-            <div className='bg-white w-full h-full sm:w-[450px] flex flex-col'>
+            <div className='bg-card w-full h-full sm:w-[450px] flex flex-col'>
                 {/** header */}
-                <div className='flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0'>
-                    <span className='text-base text-gray-900'>
+                <div className='flex items-center justify-between px-5 py-4 border-b border-base flex-shrink-0'>
+                    <span className='text-base text-primary'>
                         Account Management
                     </span>
                     {/** close button */}
                     <button
                     onClick={handleCloseModal}
-                    className='p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors'
+                    className='p-2 rounded-lg text-muted hover:text-muted hover:bg-surface-hover/50 transition-colors'
                     aria-label='Close account management panel'
                     >
                         <X className='w-5 h-5' />
@@ -595,16 +595,16 @@ const UserAccounts: React.FC<{
                             <div className='flex items-center justify-between mb-3'>
                                 {/** left */}
                                 <div className='flex items-center gap-2'>
-                                    <span className='text-sm text-gray-800'>
+                                    <span className='text-sm text-primary'>
                                         CEX Accounts
                                     </span>
-                                    <span className='px-2 py-1 text-xs bg-gray-50 text-gray-700 rounded-full'>
+                                    <span className='px-2 py-1 text-xs bg-surface text-secondary rounded-full'>
                                         {cexAccounts.length}
                                     </span>
                                     <button 
                                     onClick={fetchCexAccounts}
                                     disabled={isLoadingCex}
-                                    className='text-gray-500 hover:text-gray-700 disabled:opacity-40 transition-colors'
+                                    className='text-dim hover:text-secondary disabled:opacity-40 transition-colors'
                                     aria-label='Refresh CEX accounts'
                                     >
                                         <RefreshCw className={`w-3 h-3 ${isLoadingCex ? 'animate-spin' : ''}`} />
@@ -615,7 +615,7 @@ const UserAccounts: React.FC<{
                                 onClick={() => setModal('add-cex')}
                                 disabled={isSubmitting}
                                 className='flex items-center gap-1 px-3 py-2 text-xs
-                                bg-blue-500 text-white rounded-lg hover:bg-blue-600
+                                bg-blue-900/300 text-white rounded-lg hover:bg-blue-600
                                 transition-colors disabled:opacity-50
                                 '
                                 >
@@ -625,25 +625,25 @@ const UserAccounts: React.FC<{
                             </div>
                             {/** CEX operations error information */}
                             {cexError && (
-                                <div className='mb-3 px-3 py-2 bg-red-50 border border-red-100 rounded-lg text-xs text-red-700'>
+                                <div className='mb-3 px-3 py-2 bg-red-900/30 border border-red-100 rounded-lg text-xs text-red-400'>
                                     {cexError}
                                 </div>
                             )}
                             {/** render CEX accounts list(three status: loading, enpty, show data list) */}
                             {isLoadingCex ? (
                                  // loading state
-                                 <div className='flex items-center justify-center py-10 text-gray-500'>
+                                 <div className='flex items-center justify-center py-10 text-dim'>
                                     <Loader className='w-5 h-5 animate-spin mr-2' />
                                     <span className='text-sm'>Loading...</span>
                                  </div>
                             ) : cexAccounts.length === 0 ? (
                                 // empty list state
-                                <div className='py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-lg'>
+                                <div className='py-10 text-center text-sm text-muted border border-dashed border-strong rounded-lg'>
                                     No CEX accounts connected. Please add an account.
                                     <br />
                                     <button 
                                     onClick={() => setModal('add-cex')}
-                                    className='mt-2 text-blue-700 hover:underline text-xs'
+                                    className='mt-2 text-blue-400 hover:underline text-xs'
                                     >
                                         Add CEX Account
                                     </button>
@@ -682,18 +682,18 @@ const UserAccounts: React.FC<{
                             {/** title */}
                             <div className='flex items-center justify-between mb-3'>
                                 <div className='flex items-center gap-2'>
-                                    <span className='text-sm text-gray-800'>
+                                    <span className='text-sm text-primary'>
                                         DEX Accounts
                                     </span>
                                     {/** accounts amount badge */}
-                                    <span className='px-2 py-1 text-xs bg-gray-50 text-gray-600 rounded-full'>
+                                    <span className='px-2 py-1 text-xs bg-surface text-muted rounded-full'>
                                         {dexAccounts.length}
                                     </span>
                                     {/** refresh button */}
                                     <button
                                     onClick={fetchDexAccounts}
                                     disabled={isLoadingDex}
-                                    className='text-gray-400 hover:text-gray-600 disabled:opacity-40 transition-colors'
+                                    className='text-muted hover:text-muted disabled:opacity-40 transition-colors'
                                     aria-label='Refresh DEX accounts'
                                     >
                                         <RefreshCw className={`w-3 h-3 ${isLoadingDex ? 'animate-spin' : ''}`} />
@@ -714,18 +714,18 @@ const UserAccounts: React.FC<{
                             </div>
                             {/** DEX operation error inform */}
                             {dexError && (
-                                <div className='mb-3 px-3 py-2 bg-red-50 border border-red-50 rounded-lg text-xs text-red-700'>
+                                <div className='mb-3 px-3 py-2 bg-red-900/30 border border-red-50 rounded-lg text-xs text-red-400'>
                                     {dexError}
                                 </div>
                             )}
                             {/** render DEX accounts list */}
                             {isLoadingDex ? (
-                                <div className='flex items-center justify-center py-10 text-gray-500'>
+                                <div className='flex items-center justify-center py-10 text-dim'>
                                     <Loader className='w-5 h-5 animate-spin mr-2'/>
                                     <span className='text-sm'>Loading...</span>
                                 </div>
                             ) : dexAccounts.length === 0 ? (
-                                <div className='py-10 text-center text-sm text-gray-400 border border-dashed border-gray-100 rounded-lg'>
+                                <div className='py-10 text-center text-sm text-muted border border-dashed border-base rounded-lg'>
                                     No DEX accounts connected. Please add an account.
                                     <br />
                                     <button

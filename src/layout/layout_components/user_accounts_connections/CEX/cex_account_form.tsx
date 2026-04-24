@@ -85,7 +85,7 @@ const SecretInput: React.FC<SecretInputProps> = ({
     return (
         <div>
             {/** label */}
-            <label htmlFor={id} className='block text-sm text-gray-700 mb-1'>
+            <label htmlFor={id} className='block text-sm text-secondary mb-1'>
                 {label}
             </label>
             {/** input and toggle */}
@@ -100,14 +100,14 @@ const SecretInput: React.FC<SecretInputProps> = ({
                 spellCheck={false}
                 className={`w-full pr-10 pl-3 py-2.5 border rounded-lg text-sm 
                     focus:outline-none focus:ring-2 focus:ring-blue-100 
-                    ${error ? 'border-red-400 bg-red-50 ': 'border-gray-300 bg-white'}`}
+                    ${error ? 'border-red-400 bg-red-50 ': 'border-strong bg-card'}`}
                 />
                 {/** show/hide toggle button */}
                 <button
                 type="button"
                 onClick={() => setShowSecret((show) => !show)}
-                className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400
-                hover:text-gray-600 transition-colors'
+                className='absolute right-3 top-1/2 -translate-y-1/2 text-muted
+                hover:text-muted transition-colors'
                 aria-label={showSecret ? 'Hide secret' : 'Show secret'}
 
                 >
@@ -196,7 +196,7 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
     // handle form submission
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!frontendValidate) return
+        if (!frontendValidate()) return
         // create payload(cast to the backend CreateCexAccountPayload)
         const patload: CreateCexAccountPayload = {
             exchange: fields.exchange,
@@ -240,7 +240,7 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
         <form 
         onSubmit={handleSubmit}
         noValidate
-        className='space-y-5'
+        className='space-y-5 p-10'
         >
             {/** security alert */}
             <div className='bg-amber-50 border border-amber-100 rounded-lg p-3 text-xs text-amber-800 flex gap-2'>
@@ -257,7 +257,7 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
             {/** exchange select */}
             <div>
                 <label
-                className='block text-sm text-gray-700 mb-1'
+                className='block text-sm text-secondary mb-1'
                 >
                     Exchange <span className='text-red-500'>*</span>
                     </label>
@@ -266,7 +266,7 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
                 onChange={(event) => updateField('exchange', event.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg text-sm
                     focus:outline-none focus:ring-2 focus:ring-blue-100
-                    ${errors.exchange ? 'border-red-100':'border-gray-300'}`}
+                    ${errors.exchange ? 'border-red-100':'border-strong'}`}
                     >
                         <option value="">Please select an exchange</option>
                         {SUPPORTED_CEX_EXCHANGES.map((exchange) => (
@@ -299,12 +299,12 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
                 {/** account type */}
                 <div className=''>
                     <label
-                    className='block text-sm text-gray-700 mb-1'
+                    className='block text-sm text-secondary mb-1'
                     >Account Type</label>
                     <select
                         value={fields.accountType}
                         onChange={(event) => updateField('accountType', event.target.value as 'spot' | 'futures')}
-                        className='w-full px-3 py-2 border border-gray-100 rounded-lg focus:outline-none'
+                        className='w-full px-3 py-2 border border-base rounded-lg focus:outline-none'
                     >
                         <option value='spot'>Spot</option>
                         <option value='futures'>Futures</option>
@@ -312,12 +312,12 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
                 </div>
                 {/** account environment */}
                 <div>
-                    <label className='block text-sm text-gray-700 mb-1'
+                    <label className='block text-sm text-secondary mb-1'
                     >Account Environment</label>
                     <select
                     value={fields.accountEnvironment}
                     onChange={(event) => updateField('accountEnvironment', event.target.value as 'live' | 'test' | 'demo' )}
-                    className='w-full px-3 py-2 border border-gray-100 rounded-lg text-sm 
+                    className='w-full px-3 py-2 border border-base rounded-lg text-sm 
                     focus:outline-none focus:ring-2 focus:ring-blue-100'
                     >
                         <option value="live">Live</option>
@@ -328,7 +328,7 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
             </div>
             {/** other account name */}
             <div>
-                <label className='block text-sm text-gray-700 mb-1'>
+                <label className='block text-sm text-secondary mb-1'>
                     Other Account Name <span className='text-red-500'>*</span>
                 </label>
                 <input type="text"
@@ -338,7 +338,7 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
                 maxLength={100}
                 className={`w-full px-3 py-2 border rounded-lg text-sm 
                     focus:outline-none focus:ring-2 focus:ring-blue-100
-                    ${errors.accountName ? 'border-red-400 bg-red-50 ': 'border-gray-300'}`}
+                    ${errors.accountName ? 'border-red-400 bg-red-50 ': 'border-strong'}`}
                 />
                 {errors.accountName && (
                     <p className='mt-1 text-xs text-red-500 flex items-center gap-1'>
@@ -376,8 +376,8 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
                 />
             )}
             {/** permissions settings */}
-            <div className='bg-gray-50 rounded-lg p-3 space-y-2'>
-                <p className='text-xs text-gray-600 mb-2'>
+            <div className='bg-base rounded-lg p-3 space-y-2'>
+                <p className='text-xs text-secondary mb-2'>
                     API Permissions (optional, default to read-only, 
                     you can choose more permissions but for your account security, 
                     we recommend to only enable trading permission and keep withdrawal permission disabled)
@@ -387,14 +387,14 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
                 className='flex items-center gap-2 cursor-point'
                 >
                     <input 
-                    type="text"
+                    type="checkbox"
                     checked={fields.allowTrade}
                     onChange={(event) => updateField('allowTrade', event.target.checked)}
-                    className='w-4 h-4 rounded border-gray-100 text-blue-600 focus:ring-blue-100'
+                    className='w-4 h-4 rounded border-base text-blue-600 focus:ring-blue-100'
                     />
-                    <span className='text-sm text-gray-700'>Allow Trade(if you enable it, the system can place order)</span>
+                    <span className='text-sm text-secondary'>Allow Trade(if you enable it, the system can place order)</span>
                 </label>
-                <p className='text-xs text-gray-400 '>Withdraw/transfer permission is disabled for security reasons</p>
+                <p className='text-xs text-muted '>Withdraw/transfer permission is disabled for security reasons</p>
             </div>
             {/** global submission error information */}
             {submitError && (
@@ -421,8 +421,8 @@ const CexAccountForm: React.FC<CexAccountFormProps> = ({
                 type='button'
                 onClick={onCancel}
                 disabled={isSubmitting}
-                className='px-5 py-2 text-sm bg-gray-50 text-gray-700 rounded-lg 
-                hover:bg-gray-100 transition-colors disabled:upcity-50
+                className='px-5 py-2 text-sm bg-base text-secondary rounded-lg 
+                hover:bg-surface transition-colors disabled:upcity-50
                 '
                 >
                     Cancel

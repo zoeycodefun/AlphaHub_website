@@ -79,7 +79,7 @@ class AuthApiService {
     constructor() {
         // create an independent axios instance for auth API, all requests share the same baseURL and configuration
         this.http = axios.create({
-            baseURL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3000',
+            baseURL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:3000/api',
             timeout: 15_000, // 15 seconds timeout for auth requests
             headers: {
                 'Content-Type': 'application/json'

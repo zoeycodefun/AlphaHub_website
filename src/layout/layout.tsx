@@ -1,8 +1,10 @@
 import React, { memo, useState, useCallback, useEffect} from 'react';
 import { userAuthStore } from '../global_state_store/auth_global_state_store';
+import { useAccountStore } from '../global_state_store/accounts_management_global_state_store';
+import { useThemeStore } from '../global_state_store/theme_global_state_store';
 import AuthModal from './layout_components/auth_modal';
 import { Outlet, Link, useLocation} from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import Navigation from './layout_components/navigation';
 import MarketSelector from './layout_components/market_selector';
 import LanguageSwitcher from './layout_components/language_switcher';
@@ -19,9 +21,27 @@ const Layout: React.FC = memo(() => {
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState<boolean>(false);
   const currentLocation = useLocation();
   const { currentUser, isAuthenticated, logout, initAuth } = userAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
   useEffect(() => {
     initAuth();
-  }, [initAuth]);
+    const handleUnauthorized = () => logout();
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
+  }, [initAuth, logout]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('light', theme === 'light');
+  }, [theme]);
+
+  useEffect(() => {
+    // once user logined and token is valid, trigger CEX/DEX refetch to prevent empty list after page refresh
+    if (isAuthenticated && currentUser) {
+      useAccountStore.getState().fetchCexAccounts();
+      useAccountStore.getState().fetchDexAccounts();
+    }
+  }, [isAuthenticated, currentUser]);
 
 
   const handleUserAccountsToggle = useCallback(() => {
@@ -79,22 +99,22 @@ const Layout: React.FC = memo(() => {
   ];
 
   return (
-    <div className='min-h-screen bg-gray-50 '>
-      <header className='fixed w-full top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 '>
+    <div className='min-h-screen bg-base'>
+      <header className='fixed w-full top-0 left-0 right-0 z-50 bg-card-solid border-b border-base'>
         <div className='w-full px-4 '>
           <div className='flex items-center justify-between h-16'>
             {/** mobile navigation */}
             <div className='flex items-center space-x-3'>
               <button
               onClick={handleMobileNavigationToggle}
-              className='md:hidden rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 
+              className='md:hidden rounded-md text-secondary hover:bg-surface hover:text-primary transition-colors duration-200 
               '
               aria-label="Toggle navigation menu"
               aria-expanded={isMobileNavigationOpen}
               >
                 <Menu className='w-6 h-6' />
               </button>
-              <span className='text-[14px] lg:text-[20px] font-bold text-gray-900'>
+              <span className='text-[14px] lg:text-[20px] font-bold text-primary'>
                 AlphaHub</span>
                 <MarketSelector/>
             </div>
@@ -103,6 +123,13 @@ const Layout: React.FC = memo(() => {
               <Navigation/>
             </div>
             <div className='flex items-center space-x-3 lg:space-x-5'>
+              <button
+                onClick={toggleTheme}
+                className='p-2 rounded-lg text-muted hover:text-primary hover:bg-surface transition-colors duration-200'
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? <Sun className='w-4 h-4' /> : <Moon className='w-4 h-4' />}
+              </button>
               <LanguageSwitcher/>
               <SearchBar/>
               {isAuthenticated && currentUser ? (
@@ -110,8 +137,8 @@ const Layout: React.FC = memo(() => {
                 <>
                   <button
                   onClick={handleUserAccountsToggle}
-                  className='flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200
-                  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-100'
+                  className='flex items-center gap-2 px-3 py-2 text-sm bg-surface text-secondary rounded-full hover:bg-surface-hover
+                  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-900/50'
                   aria-label="open account management"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +150,7 @@ const Layout: React.FC = memo(() => {
                   </button>
                   <button
                   onClick={logout}
-                  className='hidden sm:inline text-xs text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded'
+                  className='hidden sm:inline text-xs text-dim hover:text-red-400 transition-colors px-2 py-1 rounded'
                   aria-label="logout"
                   >
                     Logout
@@ -133,8 +160,8 @@ const Layout: React.FC = memo(() => {
                 // not logged in: show accounts button
                 <button
                 onClick={handleUserAccountsToggle}
-                className='flex items-center px-2 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200
-                transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:ring-offset-2'
+                className='flex items-center px-2 py-2 text-sm bg-surface text-secondary rounded-full hover:bg-surface-hover
+                transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-900/50 focus:ring-offset-0'
                 aria-label="open users accounts menu"
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,14 +192,14 @@ const Layout: React.FC = memo(() => {
           onClick={handleMobileNavigationClose}
           >
             {/** navigation panel */}
-            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 max-w-sm bg-white rounded-lg shadow-xl transition-all duration-300 ease-in-out'
+            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 max-w-sm bg-card-solid border border-strong rounded-lg shadow-xl transition-all duration-300 ease-in-out'
             onClick={(event) => event.stopPropagation()}
             >
-              <div className='flex items-center justify-between p-4 border-b border-gray-100 rounded-t-lg'>
-                <span className='text-sm font-medium text-gray-900'>Navigation</span>
+              <div className='flex items-center justify-between p-4 border-b border-base rounded-t-lg'>
+                <span className='text-sm font-medium text-primary'>Navigation</span>
                 <button
                 onClick={handleMobileNavigationClose}
-                className='p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200
+                className='p-2 rounded-lg text-dim hover:text-secondary hover:bg-surface transition-colors duration-200
                 focus:outline-none focus:ring-2 focus:ring-blue-500
                 '
                 aria-label="Close navigation menu"
@@ -191,12 +218,12 @@ const Layout: React.FC = memo(() => {
                     key={item.id}
                     to={item.path}
                     onClick={handleMobileNavigationClose}
-                    className={`flex items-center px-4 py-3 border-b border-gray-100 transition-colors duration-200
-                      ${isActive ? 'bg-blue-50 text-blue-800 border-blue-200' : 'text-gray-900 hover:bg-gray-50 hover:text-gray-700'}
+                    className={`flex items-center px-4 py-3 border-b border-base transition-colors duration-200
+                      ${isActive ? 'bg-blue-900/30 text-blue-400 border-blue-700/50' : 'text-secondary hover:bg-surface hover:text-primary'}
                       `}
                     aria-current={isActive ? 'page' : undefined}
                     >
-                      <span className='mr-3 flex-shrink-0 text-gray-500 '>
+                      <span className='mr-3 flex-shrink-0 text-muted '>
                         {item.icon}
                       </span>
                       <span className='flex-1 '>

@@ -42,7 +42,7 @@ const PasswordStrengthBar: React.FC<{ password: string }> = ({ password }) => {
                     <div
                     key={segment}
                     className={`h-1 flex-1 rounded-full transition-colors duration-300
-                        ${score >= segment ? STRENGTH_COLORS[score] : 'bg-gray-200'}`}
+                        ${score >= segment ? STRENGTH_COLORS[score] : 'bg-surface-hover'}`}
                     />
                 ))}
             </div>
@@ -104,7 +104,7 @@ const LoginForm: React.FC = () => {
         >
             {/** error banner */}
             {localError && (
-                <div className='flex items-start gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded-lg'>
+                <div className='flex items-start gap-2 px-3 py-2 bg-red-900/30 border border-red-100 rounded-lg'>
                     <AlertCircle className='w-4 h-4 text-red-500 flex-shrink-0 mt-1'/>
                     <p className='text-xs text-red-600'>{localError}</p>
                 </div>
@@ -112,7 +112,7 @@ const LoginForm: React.FC = () => {
             {/** email input bar */}
             <div>
                 <label htmlFor="login-email"
-                className='block text-sm text-gray-700 mb-1'
+                className='block text-sm text-secondary mb-1'
                 >
                     Email <span className='text-red-500'>*</span>
                 </label>
@@ -127,15 +127,15 @@ const LoginForm: React.FC = () => {
                 }}
                 autoComplete='email'
                 placeholder='***@email.com'
-                className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
-                focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-100'
+                className='w-full px-3 py-2 border border-strong rounded-lg text-sm 
+                focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-700'
                 />
             </div>
             {/** password input bar */}
             <div>
                 <label 
                 htmlFor="login-password"
-                className='block text-sm text-gray-700 mb-1'
+                className='block text-sm text-secondary mb-1'
                 >
                     Password <span className='text-red-500'>*</span>
                 </label>
@@ -150,8 +150,8 @@ const LoginForm: React.FC = () => {
                 }}
                 autoComplete='current-password'
                 placeholder='********'
-                className='w-full px-3 py-2 border border-gray-300 rounded-lg text-sm 
-                focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-100'
+                className='w-full px-3 py-2 border border-strong rounded-lg text-sm 
+                focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-700'
                 />
             </div>
             {/** remember me checkbox */}
@@ -162,9 +162,9 @@ const LoginForm: React.FC = () => {
                 type='checkbox'
                 checked={rememberMe}
                 onChange={(event) => setRememberMe(event.target.checked)}
-                className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+                className='w-4 h-4 text-blue-600 border-strong rounded focus:ring-blue-500'
                 />
-                <span className='text-sm text-gray-600'>Remember me(stay logged in for 7 days)</span>
+                <span className='text-sm text-muted'>Remember me(stay logged in for 7 days)</span>
             </label>
             {/** submit button: if logining show loading spinner */}
             <button
@@ -249,7 +249,7 @@ const RegisterForm: React.FC = () => {
         >
             {/** error banner */}
             {localError && (
-                <div className='flex items-start gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded-lg'>
+                <div className='flex items-start gap-2 px-3 py-2 bg-red-900/30 border border-red-100 rounded-lg'>
                     <AlertCircle className='w-4 h-4 text-red-500 flex-shrink-0 mt-1'/>
                     <p className='text-xs text-red-600'>{localError}</p>
                 </div>
@@ -257,7 +257,7 @@ const RegisterForm: React.FC = () => {
             {/** email input bar */}
             <div>
                 <label htmlFor="reg-email"
-                className='block text-sm text-gray-700 mb-1'
+                className='block text-sm text-secondary mb-1'
                 >
                     Email <span className='text-red-500'>*</span>
                 </label>
@@ -272,15 +272,15 @@ const RegisterForm: React.FC = () => {
                 }}
                 autoComplete='email'
                 placeholder='your@email.com'
-                className='w-full px-3 py-2 border border-gray-200 rounded-lg text-sm
+                className='w-full px-3 py-2 border border-strong rounded-lg text-sm
                 focus:outline-none focus:ring-2 focus:border-blue-400'
                 />
             </div>
             {/** nickname input bar(optional)  */}
             <div>
                 <label htmlFor="reg-nickname"
-                className='block text-sm text-gray-700 mb-1'>
-                    Nickname <span className='ml-1 text-gray-400 text-xs'>(optional)</span>
+                className='block text-sm text-secondary mb-1'>
+                    Nickname <span className='ml-1 text-muted text-xs'>(optional)</span>
                 </label>
                 <input
                 id='reg-nickname'
@@ -290,14 +290,14 @@ const RegisterForm: React.FC = () => {
                 autoComplete='nickname'
                 placeholder='How should we call you?'
                 maxLength={64}
-                className='w-full px-3 py-2 border- border-gray-200 rounded-lg text-sm 
-                focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-200'
+                className='w-full px-3 py-2 border- border-strong rounded-lg text-sm 
+                focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-700/50'
                 />
             </div>
             {/** password input bar(including strength indicator) */}
             <div>
                 <label htmlFor="reg-password"
-                className='block text-sm text-gray-700 mb-1'>
+                className='block text-sm text-secondary mb-1'>
                     Password <span className='text-red-500'>*</span>
                 </label>
                 <input
@@ -311,8 +311,8 @@ const RegisterForm: React.FC = () => {
                 }}
                 autoComplete='new-password'
                 placeholder='Create a strong password'
-                className='w-full px-3 py-2 border border-gray-200 rounded-lg text-sm 
-                focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-200'
+                className='w-full px-3 py-2 border border-strong rounded-lg text-sm 
+                focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-700/50'
                 />
                 <PasswordStrengthBar password={password}
                 />
@@ -320,7 +320,7 @@ const RegisterForm: React.FC = () => {
             {/** confirm password input bar */}
             <div>
                 <label htmlFor="reg-confirm" 
-                className='block text-sm text-gray-700 mb-1'>
+                className='block text-sm text-secondary mb-1'>
                     Confirm Password <span className='text-red-500'>*</span>
                 </label>
                 <div className='relative'>
@@ -335,8 +335,8 @@ const RegisterForm: React.FC = () => {
                     }}
                     autoComplete='new-password'
                     placeholder='Re-enter your password'
-                    className='w-full px-3 py-2 border border-gray-200 rounded-lg text-sm 
-                    focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-200'
+                    className='w-full px-3 py-2 border border-strong rounded-lg text-sm 
+                    focus:outline-none focus:ring-2 focus:ring-blue-50 focus:border-blue-700/50'
                     />
                     {/** real-time password match indicator */}
                     {confirmPassword && password && (
@@ -350,7 +350,7 @@ const RegisterForm: React.FC = () => {
                 </div>
             </div>
             {/** data security notice */}
-            <p className='text-xs text-gray-400'>
+            <p className='text-xs text-muted'>
                 By registering, you agree to our <a href="#" className='text-blue-600 underline'>Terms of Service</a> and <a href="#" className='text-blue-600 underline'>Privacy Policy</a>. We take your data security seriously.
             </p>
             {/** submit button */}
@@ -388,24 +388,24 @@ const AuthModal: React.FC = () => {
         >
             {/** modal main body */}
             <div
-            className='bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden'
+            className='bg-card rounded-xl w-full max-w-md shadow-2xl overflow-hidden'
             onClick={(event) => event.stopPropagation()}
             >
                 {/** header title */}
-                <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100'>
-                    <span className='text-base text-gray-900'>
+                <div className='flex items-center justify-between px-6 py-4 border-b border-base'>
+                    <span className='text-base text-primary'>
                         {activeTab === 'login' ? 'Sign In to Your Account' : 'Create a New Account'}
                     </span>
                     <button 
                     onClick={closeAuthModal}
-                    className='p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors'
+                    className='p-2 rounded-lg text-muted hover:text-muted hover:bg-surface-hover/50 transition-colors'
                     aria-label='Close authentication modal'
                     >
                         <X className='w-4 h-4'/>
                     </button>
                 </div>
                 {/** tab switcher */}
-                <div className='flex border-b border-gray-100'>
+                <div className='flex border-b border-base'>
                     {(['login', 'register'] as const).map((tab) => (
                         <button
                         key={tab}
@@ -413,7 +413,7 @@ const AuthModal: React.FC = () => {
                         className={`flex-1 py-3 text-sm transition-colors border-b-2
                             ${activeTab === tab 
                                 ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                                : 'border-transparent text-dim hover:text-secondary'
                             }`}
                         >
                             {tab === 'login' ? 'Sign In' : 'Register'}
@@ -427,7 +427,7 @@ const AuthModal: React.FC = () => {
                 </div>
                 {/** tab switcher in bottom */}
                 <div className='px-6 pb-5 text-center'>
-                    <p className='text-xs text-gray-500'>
+                    <p className='text-xs text-dim'>
                         {activeTab === 'login' ? (
                             <>
                             Don&apos;t have an account?{' '}

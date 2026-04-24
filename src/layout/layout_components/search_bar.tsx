@@ -112,7 +112,7 @@ const SearchBar: React.FC = memo(()=> {
         <>
         <button
         onClick={openSearchWindow}
-        className='p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors 
+        className='p-2 text-muted hover:text-primary hover:bg-surface-hover/50 rounded-lg transition-colors 
         duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 
         focus:ring-offset-2
         '
@@ -133,18 +133,18 @@ const SearchBar: React.FC = memo(()=> {
             aria-labelledby='search-dialog-title'
             >
                 <div
-                className='w-full max-w-2xl bg-white rounded-lg shadow-2xl max-h-[80vh] overflow-hidden mx-4'
+                className='w-full max-w-2xl bg-card rounded-lg shadow-2xl max-h-[80vh] overflow-hidden mx-4'
                 onClick={(event) => event.stopPropagation()}
                 >
                     <header
-                    className='flex items-center justify-between p-4 border-b border-gray-200 
-                    bg-gray-50 rounded-t-lg 
+                    className='flex items-center justify-between p-4 border-b border-strong 
+                    bg-surface rounded-t-lg 
                     '
                     >
-                        <span className='text-xl text-gray-900'>Global Search</span>
+                        <span className='text-xl text-primary'>Global Search</span>
                         <button
                         onClick={closeSearchWindow}
-                        className='p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 
+                        className='p-2 text-muted hover:text-muted hover:bg-surface-hover/50 
                         rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500
                         '
                         aria-label='close search window'
@@ -154,7 +154,7 @@ const SearchBar: React.FC = memo(()=> {
                             </svg>
                         </button>
                     </header>
-                    <div className='p-4 border-b border-gray-200'>
+                    <div className='p-4 border-b border-strong'>
                         <div className='flex gap-2'>
                             <div className='flex-1 relative'>
                                 <input 
@@ -163,14 +163,14 @@ const SearchBar: React.FC = memo(()=> {
                                 onChange={handleInputChange}
                                 onKeyDown={handleKeyboardDown}
                                 placeholder='please input searching keyword...'
-                                className='w-full px-2 py-3 pl-12 border border-gray-300 rounded-full
+                                className='w-full px-2 py-3 pl-12 border border-strong rounded-full
                                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
                                 '
                                 disabled={isLoading}
                                 aria-describedby={error ? 'search-error-message' : undefined}
                                 autoFocus
                                 />
-                                <svg className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="absolute left-3 top-3.5 w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
@@ -178,7 +178,7 @@ const SearchBar: React.FC = memo(()=> {
                             <button
                             onClick={conductSearch}
                             disabled={isLoading || !searchKeywordQuery.trim()}
-                            className='px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed
+                            className='px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed
                             transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
                             flex items-center gap-2
                             '
@@ -199,7 +199,7 @@ const SearchBar: React.FC = memo(()=> {
                         {error && (
                             <p
                             id='search-error'
-                            className='mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md'
+                            className='mt-2 text-sm text-red-600 bg-red-900/30 p-2 rounded-md'
                             role='alert'
                             >
                                 {error}
@@ -212,15 +212,15 @@ const SearchBar: React.FC = memo(()=> {
                     >
                         {results.length > 0 ? (
                         <ul
-                        className='divide-y divide-gray-100'
+                        className='divide-y divide-base'
                         role='listbox'
 
                         >
                             {results.map((result) => (
                                 <li
                                 key={result.id}
-                                className='p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200
-                                focus:outline-none focus:bg-gray-50
+                                className='p-4 hover:bg-surface cursor-pointer transition-colors duration-200
+                                focus:outline-none focus:bg-surface
                                 '
                                 onClick={() => handleResultClick(result)}
                                 role='option'
@@ -229,13 +229,13 @@ const SearchBar: React.FC = memo(()=> {
                                 >
                                     <div className='flex items-center justify-between'>
                                         <div className='flex-1'>
-                                            <h3 className='text-sm text-gray-900 mb-1'>{result.title}</h3>
-                                            <p className='text-sm text-gray-600 mb-2'>{result.description}</p>
-                                            <span className='inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800'>
+                                            <h3 className='text-sm text-primary mb-1'>{result.title}</h3>
+                                            <p className='text-sm text-muted mb-2'>{result.description}</p>
+                                            <span className='inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-900/40 text-blue-300'>
                                                 {result.category}
                                             </span>
                                         </div>
-                                        <svg className="w-5 h-5 text-gray-400 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-5 h-5 text-muted ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                         </svg>
 
@@ -246,21 +246,21 @@ const SearchBar: React.FC = memo(()=> {
                     ):isLoading ? (
                         <div className='flex items-center justify-center py-12'>
                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                             <span className='ml-3 text-gray-600'>Searching...</span>
+                             <span className='ml-3 text-muted'>Searching...</span>
                         </div>
                     ):searchKeywordQuery ? (
                         <div className='text-center py-12'>
-                            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="mx-auto h-12 w-12 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <p className='mt-2 text-gray-500'>Do not find matching results</p>
+                            <p className='mt-2 text-dim'>Do not find matching results</p>
                         </div>
                     ):(
                         <div className='text-center py-12'>
-                            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="mx-auto h-12 w-12 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <p className='mt-2 text-gray-500'>Please input keywords for searching</p>
+                            <p className='mt-2 text-dim'>Please input keywords for searching</p>
                         </div>
                     )}
                     </main>

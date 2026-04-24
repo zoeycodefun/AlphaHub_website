@@ -59,21 +59,21 @@ const ExchangeDropdownMenu: React.FC<{
             <button
                 onClick={() => setIsOpenExchangeDropdownMenu(!isOpenExchangeDropdownMenu)}
                 onKeyDown={handleKeyDown}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors min-w-[200px] text-left"
+                className="flex items-center gap-2 px-3 py-2 bg-surface hover:bg-surface-hover rounded-lg transition-colors min-w-[200px] text-left"
                 aria-expanded={isOpenExchangeDropdownMenu}
                 aria-haspopup="listbox"
             >
             {/**❌ check if the exchange name changes after selecting an exchange from the dropdown menu  */}
                 <TrendingUp className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-medium text-gray-900 truncate">
+                <span className="text-sm font-medium text-primary truncate">
                     {currentExchange?.name || 'choose exchange'}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpenExchangeDropdownMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-muted transition-transform duration-200 ${isOpenExchangeDropdownMenu ? 'rotate-180' : ''}`} />
             </button>
             {/** ❌ there should be two changes when opening the exchange dropdown menu: the selected exchange should change, and the dropdown menu should also be selected */}
             {isOpenExchangeDropdownMenu && (
                 <div
-                    className="absolute top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
+                    className="absolute top-full mt-1 w-full bg-surface border border-strong rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
                     style={{ maxHeight: MAX_EXCHANGE_MENU_HEIGHT }}
                     role="listbox"
                 >
@@ -85,8 +85,8 @@ const ExchangeDropdownMenu: React.FC<{
                                 onExchangeChange(exchange);
                                 setIsOpenExchangeDropdownMenu(false);
                             }}
-                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between 
-                                ${currentExchange?.id === exchange.id ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500' : 'text-gray-700'
+                            className={`w-full px-3 py-2 text-left hover:bg-surface-hover transition-colors duration-150 flex items-center justify-between 
+                                ${currentExchange?.id === exchange.id ? 'bg-blue-900/40 text-blue-400 border-l-4 border-blue-500' : 'text-secondary'
                             }`}
                             role="option"
                             aria-selected={currentExchange?.id === exchange.id}
@@ -96,7 +96,7 @@ const ExchangeDropdownMenu: React.FC<{
                                 {exchange.isActive && <div className="w-2 h-2 bg-green-400 rounded-full"></div>}
                             </div>
                             {/** ❌ balance format function */}
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-dim">
                                 Avaliable: ${exchange.balance.available.toFixed(2)} {exchange.balance.currency}
                             </div>
                         </button>
@@ -142,22 +142,22 @@ const TimeZoneDisplay: React.FC<{
         <div className="relative" ref={timezoneDropdownRef}>
             <button
                 onClick={() => setIsOpenTimeZoneMenu(!isOpenTimeZoneMenu)}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors min-w-[120px]"
+                className="flex items-center gap-2 px-3 py-2 bg-surface hover:bg-surface-hover rounded-lg transition-colors min-w-[120px]"
                 aria-expanded={isOpenTimeZoneMenu}
                 aria-haspopup="listbox"
             >
                 <Clock className="w-4 h-4 text-green-400" />
                 <div className="text-left">
-                    <div className="text-xs text-gray-500">{currentConfig?.country}</div>
-                    <div className="text-sm font-medium text-gray-900">{currentTime}</div>
+                    <div className="text-xs text-dim">{currentConfig?.country}</div>
+                    <div className="text-sm font-medium text-primary">{currentTime}</div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 
+                <ChevronDown className={`w-4 h-4 text-muted transition-transform duration-200 
                     ${isOpenTimeZoneMenu ? 'rotate-180' : ''}`} />
             </button>
             {/** ❌ when open timezone menu, ensure it can be scrolled and show the time of specific timezone when choose */}
             {isOpenTimeZoneMenu && (
                 <div
-                    className="scrollbar-hide absolute top-full mt-1  w-[12vw] bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
+                    className="scrollbar-hide absolute top-full mt-1  w-[12vw] bg-surface border border-strong rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
                     role="listbox"
                 >
                     {TIMEZONE_CONFIG.map((timezone) => (
@@ -167,15 +167,15 @@ const TimeZoneDisplay: React.FC<{
                                 onTimeZoneChange(timezone.id);
                                 setIsOpenTimeZoneMenu(false);
                             }}
-                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors duration-150 
-                                ${currentTimeZone === timezone.id ? 'bg-blue-100 text-blue-700' : 'text-gray-700'
+                            className={`w-full px-3 py-2 text-left hover:bg-surface-hover transition-colors duration-150 
+                                ${currentTimeZone === timezone.id ? 'bg-blue-900/40 text-blue-400' : 'text-secondary'
                             }`}
                             role="option"
                             aria-selected={currentTimeZone === timezone.id}
                         >
                             <div className="flex items-center gap-4">
                                     <div className="text-xs font-medium">{timezone.label}</div>
-                                    <div className="text-xs text-gray-500">{timezone.country}</div>
+                                    <div className="text-xs text-dim">{timezone.country}</div>
                             </div>
                         </button>
                     ))}
@@ -201,6 +201,8 @@ const PageNavigation: React.FC<{
         { id: 'signals_backtesting', label: 'Signals Backtesting', isActive: currentPage === 'signals_backtesting' },
         { id: 'strategy_center', label: 'Strategy Center', isActive: currentPage === 'strategy_center'},
         { id: 'profit_loss_analysis', label: 'P&L Analytics', isActive: currentPage === 'profit_loss_analysis' },
+        { id: 'trader_growth_archive', label: 'Growth Archive', isActive: currentPage === 'trader_growth_archive' },
+        { id: 'risk_management_hub', label: 'Risk Hub', isActive: currentPage === 'risk_management_hub' },
     ], [currentPage]);
 
     return (
@@ -212,10 +214,10 @@ const PageNavigation: React.FC<{
                     onClick={() => onPageChange(item.id)}
                     className={`px-4 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap text-sm font-medium
                         ${item.isActive
-                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                            ? 'bg-blue-900/30 text-blue-400 border border-blue-700/50'
                             : item.isComingSoon
-                            ? 'text-gray-400 cursor-not-allowed'
-                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                            ? 'text-secondary cursor-not-allowed'
+                            : 'text-muted hover:bg-surface hover:text-primary'
                     } ${item.isComingSoon ? 'opacity-50' : ''}`}
                     disabled={item.isComingSoon}
                 >
@@ -298,18 +300,18 @@ const MobileNavigationMenu: React.FC<{
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
             <div
             ref={timezoneMenuRef}
-            className='w-full bg-white rounded-t-lg max-h-[90vh] overflow-y-auto'
+            className='w-full bg-card rounded-t-lg max-h-[90vh] overflow-y-auto border-t border-strong'
             style={{maxHeight: '90vh'}}
             >
                 {/** header */}
-                <div className='flex items-center justify-between p-4 border-b border-gray-200'>
-                    <p className='text-lg font-semibold text-gray-900'>Navigation Settings</p>
+                <div className='flex items-center justify-between p-4 border-b border-base'>
+                    <p className='text-lg font-semibold text-primary'>Navigation Settings</p>
                     <button
                     onClick={onClose}
-                    className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
+                    className='p-2 hover:bg-surface rounded-lg transition-colors'
                     aria-label="close"
                     >
-                        <ChevronDown className='w-5 h-5 text-gray-500 rotate-45' />
+                        <ChevronDown className='w-5 h-5 text-dim rotate-45' />
                     </button>
                 </div>
                 {/** content */}
@@ -317,7 +319,7 @@ const MobileNavigationMenu: React.FC<{
                     {/** page navigation */}
                     <div>
                         <div className='flex items-center gap-2 mb-3'>
-                            <span className='text-sm font-medium text-gray-900'>Navigation</span>
+                            <span className='text-sm font-medium text-primary'>Navigation</span>
                         </div>
                         <div className='grid grid-cols-2 gap-2'>
                             {[
@@ -330,6 +332,8 @@ const MobileNavigationMenu: React.FC<{
                                 { id: 'signals_backtesting', label: 'Signals Backtesting' },
                                 { id: 'strategy_center', label: 'Strategy Center'},
                                 { id: 'profit_loss_analysis', label: 'P&L Analytics' },
+                                { id: 'trader_growth_archive', label: 'Growth Archive' },
+                                { id: 'risk_management_hub', label: 'Risk Hub' },
                             ].map((item) => (
                                 <button
                                 key={item.id}
@@ -339,8 +343,8 @@ const MobileNavigationMenu: React.FC<{
                                 }}
                                 className={`p-3 rounded-lg transition-colors text-left
                                     ${currentPage === item.id 
-                                        ? 'bg-blue-50 text-blue-900 border border-blue-200'
-                                        : 'text-gray-900 hover:bg-gray-50'
+                                        ? 'bg-blue-900/30 text-blue-400 border border-blue-700/50'
+                                        : 'text-secondary hover:bg-surface'
                                     }`}
                                 >
                                     <div className='text-sm font-medium'>{item.label}</div>
@@ -355,24 +359,24 @@ const MobileNavigationMenu: React.FC<{
                     className='flex items-center gap-2 mb-3'
                     >
                         <Clock className='w-4 h-4 text-green-400'/>
-                        <span className='text-sm font-medium text-gray-900'>Timezone Settings</span>
+                        <span className='text-sm font-medium text-primary'>Timezone Settings</span>
                     </div>
-                    <div className='text-xs text-gray-500 mb-2'>{currentConfig?.country} - {currentConfig?.label}</div>
-                    <div className='text-lg font-mono text-gray-900 mb-3'>{currentTime}</div>
+                    <div className='text-xs text-dim mb-2'>{currentConfig?.country} - {currentConfig?.label}</div>
+                    <div className='text-lg font-mono text-primary mb-3'>{currentTime}</div>
                     <div className='space-y-2 max-h-40 overflow-y-auto'>
                         {TIMEZONE_CONFIG.map((timezone) => (
                             <button 
                             key={timezone.id}
                             onClick={() => onTimeZoneChange(timezone.id)}
-                            className={`w-full px-3 py-2 text-left rounded hover:bg-gray-50 transition-colors duration-150
-                                ${currentTimeZone === timezone.id ? 'bg-blue-100 text-blue-700' : 'text-gray-700'}`}
+                            className={`w-full px-3 py-2 text-left rounded hover:bg-surface transition-colors duration-150
+                                ${currentTimeZone === timezone.id ? 'bg-blue-900/40 text-blue-400' : 'text-secondary'}`}
                             >
                                 <div className='flex items-center justify-between'>
                                     <div className=''>
                                         <div className='text-sm font-medium'>{timezone.label}</div>
-                                        <div className='text-xs text-gray-500'>{timezone.country}</div>
+                                        <div className='text-xs text-dim'>{timezone.country}</div>
                                     </div>
-                                    <div className='text-xs text-gray-500 font-mono'>
+                                    <div className='text-xs text-dim font-mono'>
                                         {getCurrentTimeInTimeZone(timezone.id)}
                                     </div>
                                 </div>
@@ -386,7 +390,7 @@ const MobileNavigationMenu: React.FC<{
                 <div>
                     <div className='flex items-center gap-2 mb-3'>
                         <TrendingUp className='w-4 h-4 text-blue-400'/>
-                        <span className='text-sm font-medium text-gray-900'>Exchanges Settings</span>
+                        <span className='text-sm font-medium text-primary'>Exchanges Settings</span>
                     </div>
                     <div className='space-y-2 max-h-40 overflow-y-auto'>
                         {exchanges.map((exchange) => (
@@ -396,15 +400,15 @@ const MobileNavigationMenu: React.FC<{
                                 onExchangeChange(exchange);
                                 onClose();
                             }}
-                            className={`w-full px-3 py-2 text-left rounded hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between
-                                ${currentExchange?.id === exchange.id ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500' : 'text-gray-700'}`}
+                            className={`w-full px-3 py-2 text-left rounded hover:bg-surface transition-colors duration-150 flex items-center justify-between
+                                ${currentExchange?.id === exchange.id ? 'bg-blue-900/40 text-blue-400 border-l-4 border-blue-500' : 'text-secondary'}`}
                             >
                                 <div className='flex items-center gap-2'>
                                     <span className='text-sm font-medium'>{exchange.name}</span>
                                     {/** green point to indicate exchange active */}
                                     {exchange.isActive && <div className='w-2 h-2 bg-green-400 rounded-full'></div>}
                                 </div>
-                                <div className='text-xs text-gray-500'>
+                                <div className='text-xs text-dim'>
                                     Avaliable: ${exchange.balance.available.toFixed(2)} {exchange.balance.currency}
                                 </div>
                             </button>
@@ -441,17 +445,17 @@ const TradeCenterNavigation: React.FC<TradeCenterNavigationProps> = ({
         return (
             <>
             <div
-                className="fixed top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-sm z-40 px-4 py-3"
+                className="fixed top-16 left-0 right-0 bg-card border-b border-base shadow-sm z-40 px-4 py-3"
                 style={{ height: NAVIGATION_HEIGHT }}
             >
                 <div className="flex items-center justify-end h-full">
                     {/** settings button(specific for mobile) */}
                     <button 
                     onClick={() => setIsMobileNavigationMenuOpen(true)}
-                    className='p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors '
+                    className='p-2 bg-surface rounded-lg hover:bg-surface-hover transition-colors '
                     aria-label="navigation settings"
                     >
-                        <Settings className='w-5 h-5 text-gray-700'/>
+                        <Settings className='w-5 h-5 text-secondary'/>
                     </button>
                 </div>
             </div>
@@ -472,7 +476,7 @@ const TradeCenterNavigation: React.FC<TradeCenterNavigationProps> = ({
 
     return (
         <div
-            className="fixed top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-sm z-40 px-4 py-3"
+            className="fixed top-16 left-0 right-0 bg-card border-b border-base shadow-sm z-40 px-4 py-3"
             style={{ height: NAVIGATION_HEIGHT }}
         >
             <div className="flex items-center justify-between h-full max-w-7xl mx-auto">

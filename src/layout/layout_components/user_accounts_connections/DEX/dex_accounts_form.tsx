@@ -20,12 +20,12 @@ interface BlockchainWebsiteMeta {
 }
 const BLOCKCHAIN_WEBSITE: BlockchainWebsiteMeta[] = [
     { id: 1, displayName: 'Ethereum Mainnet', type: 'mainnet', addressPrefix: '0x' },
-    { id: 2, displayName: 'BNB Smart Chain', type: 'mainnet', addressPrefix: '0x' },
-    { id: 3, displayName: 'Arbitrum One', type: 'mainnet', addressPrefix: '0x' },
-    { id: 4, displayName: 'Optimism', type: 'mainnet', addressPrefix: '0x' },
-    { id: 5, displayName: 'Polygon(MATIC)', type: 'mainnet', addressPrefix: '0x' },
-    { id: 6, displayName: 'Hyperliquid L1', type: 'mainnet', addressPrefix: '0x' },
-    { id: 99, displayName: 'Solana Mainnet', type: 'mainnet', addressPrefix: '' },
+    { id: 56, displayName: 'BNB Smart Chain', type: 'mainnet', addressPrefix: '0x' },
+    { id: 42161, displayName: 'Arbitrum One', type: 'mainnet', addressPrefix: '0x' },
+    { id: 10, displayName: 'Optimism', type: 'mainnet', addressPrefix: '0x' },
+    { id: 137, displayName: 'Polygon(MATIC)', type: 'mainnet', addressPrefix: '0x' },
+    { id: 998, displayName: 'Hyperliquid L1', type: 'mainnet', addressPrefix: '0x' },
+    { id: 1399811149, displayName: 'Solana Mainnet', type: 'mainnet', addressPrefix: '' },
 ];
 // DEX platform configuration(cast to dexPlatform enum)
 interface DexPlatformMeta {
@@ -174,7 +174,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
         <form
     onSubmit={handleSubmit}
     noValidate
-    className='space-y-5'
+    className='space-y-5 p-10'
     >
         {/** DEX security inform */}
         <div className='bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-800 flex gap-2'>
@@ -188,7 +188,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
         {/** DEX platform selection */}
         <div>
             <label
-            className='block text-sm text-gray-700 mb-1'
+            className='block text-sm text-secondary mb-1'
             >
                 DEX Platform <span className='text-red-500 '>*</span>
             </label>
@@ -197,14 +197,14 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
             onChange={(event) => handleDexPlatformChange(event.target.value)}
             className={`w-full px-3 py-2 border rounded-lg text-sm 
                 focus:outline-none focus:ring-2 focus:ring-blue-100
-                ${errors.dexPlatform ? 'border-red-300' : 'border-gray-300'}
+                ${errors.dexPlatform ? 'border-red-300' : 'border-strong'}
                 `}
             >
                 <option value="">Please choose DEX platform</option>
                 {DEX_PLATFORMS.map((platform) => (
                     <option
                     key={platform.id}
-                    value={platform.displayName}
+                    value={platform.id}
                     >{platform.displayName}</option>
                 ))}
             </select>
@@ -217,7 +217,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
         </div>
         {/** blockchainwebsite choose */}
         <div>
-            <label className='block text-sm text-gray-700 mb-1'>
+            <label className='block text-sm text-secondary mb-1'>
                 Blockchain Website <span className='text-red-500 '>*</span>
             </label>
             <select 
@@ -227,7 +227,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
             }
             className={`w-full px-3 py-2 border rounded-lg text-sm
                 focus:outline-none focus:ring-2 focus:ring-blue-100
-                ${errors.blockchainWebsiteId ? 'border-red-300' : 'border-gray-300'}
+                ${errors.blockchainWebsiteId ? 'border-red-300' : 'border-strong'}
                 `}
             >
                 <option value="">Please choose a blockchain website</option>
@@ -249,7 +249,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
         </div>
         {/** wallet address */}
         <div>
-            <label className='block text-sm text-gray-700 mb-1'>
+            <label className='block text-sm text-secondary mb-1'>
                 Wallet Address <span className='text-red-500 '>*</span>
             </label>
             <input 
@@ -261,7 +261,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
                 autoComplete='off'
                 className={`w-full px-3 py-2 border rounded-lg text-sm 
                     focus:outlin-none focus:ring-2 focus:ring-blue-100
-                    ${errors.walletAddress ? 'border-red-300' : 'border-gray-300'}
+                    ${errors.walletAddress ? 'border-red-300' : 'border-strong'}
                     `}
                 />
                 {errors.walletAddress && (
@@ -271,7 +271,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
                 )}
                 {/** fast validation: when the address input has content, show the length */}
                 {fields.walletAddress && (
-                    <p className='mt-1 text-xs text-gray-400'>
+                    <p className='mt-1 text-xs text-muted'>
                         Address Length: {fields.walletAddress.length} characters
                     </p>
                 )}
@@ -279,7 +279,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
         {/** wallet type */}
         <div>
             <label
-            className='block text-sm text-gray-700 mb-1'
+            className='block text-sm text-secondary mb-1'
             >
                 Wallet Type <span className='text-red-500 '>*</span>
             </label>
@@ -288,7 +288,7 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
             onChange={(event) => handleWalletTypeChange(event.target.value)}
             className={`w-full px-3 py-2 border rounded-lg text-sm
                 focus:outline-none focus:ring-2 focus:ring-blue-100
-                ${errors.walletType ? 'border-red-300' : 'border-gray-300'}
+                ${errors.walletType ? 'border-red-300' : 'border-strong'}
                 `}
             >
                 <option value="">Please choose a wallet type</option>
@@ -306,8 +306,8 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
             )}
         </div>
         {/** permissions settings */}
-        <div className='bg-gray-50 rounded-lg p-3'>
-            <p className='text-xs text-gray-600 mb-2'>
+        <div className='bg-base rounded-lg p-3'>
+            <p className='text-xs text-secondary mb-2'>
                 Permissions Settings:
             </p>
             <label
@@ -317,9 +317,9 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
                 type="checkbox"
                 checked={fields.allowTrade}
                 onChange={(event) => updateField('allowTrade', event.target.checked)}
-                className='w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-300'
+                className='w-4 h-4 rounded border-strong text-blue-600 focus:ring-blue-300'
                 />
-                <span className='text-sm text-gray-700'>Allow Onchain Trade</span>
+                <span className='text-sm text-secondary'>Allow Onchain Trade</span>
             </label>
         </div>
         {/** global error */}
@@ -342,8 +342,8 @@ const DexAccountForm: React.FC<DexAccountFormProps> = ({ onSuccess, onCancel }) 
             type='button'
             onClick={onCancel}
             disabled={isSubmitting}
-            className='px-5 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg 
-            hover:bg-gray-200 transition-colors disabled:opacity-50'
+            className='px-5 py-2 text-sm bg-surface text-secondary rounded-lg 
+            hover:bg-surface-hover transition-colors disabled:opacity-50'
             >
                 Cancel
             </button>

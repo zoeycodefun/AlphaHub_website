@@ -46,7 +46,7 @@ const LanguageSwitcher: React.FC = memo(() => {
             </span>
             {/* change icon */}
             <svg
-                className="w-4 h-4 text-gray-400"
+                className="w-4 h-4 text-muted"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

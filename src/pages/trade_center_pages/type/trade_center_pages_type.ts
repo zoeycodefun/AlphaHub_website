@@ -53,5 +53,15 @@ export const PAGE_CONFIGS: readonly PageConfig[] = [
         id: 'profit_loss_analysis',
         path: '/trade_center/profit_loss_analysis',
         component: () => import('../profit_loss_analysis_page'),
+    },
+    {
+        id: 'trader_growth_archive',
+        path: '/trade_center/trader_growth_archive',
+        component: () => import('../trader_growth_archive_page'),
+    },
+    {
+        id: 'risk_management_hub',
+        path: '/trade_center/risk_management_hub',
+        component: () => import('../risk_management_hub_page'),
     }
 ] as const;

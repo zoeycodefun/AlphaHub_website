@@ -58,6 +58,16 @@ const NAVIGATION_CONFIG: readonly NavigationItem[] = [
             </svg>
         )
     },
+    {
+        id: 'ai_model_training',
+        path: '/ai_model_training',
+        label: 'AI Models',
+        icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+        )
+    },
 ] as const;
 
 
@@ -73,14 +83,14 @@ const NavigationItemComponents: React.FC<NavigationItemProps> = memo(({
         <Link
         to={item.path}
         className={`w-60 group flex items-center px-2 py-2 rounded-full text-sm lg:text-[14px] transition-all duration-200 ease-in-out whitespace-nowrap
-            ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}
+            ${isActive ? 'bg-blue-900/30 text-blue-400' : 'text-muted hover:bg-surface hover:text-primary'}
             ${item.disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}
             `}
             aria-current={isActive ? 'page' : undefined}
             title={item.label}
         >
             <span className={`mr-2 transition-colors duration-200
-                ${isActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700'}
+                ${isActive ? 'text-blue-400' : 'text-dim group-hover:text-secondary'}
                 `}>
                     {item.icon}
             </span>
@@ -106,6 +116,9 @@ const Navigation: React.FC<NavigationProps> = memo(({
         // as for trading center, support nested route matching
         if (item.path === '/trading_center') {
             return currentLocation.pathname.startsWith('/trading_center');
+        }
+        if (item.path === '/ai_model_training') {
+            return currentLocation.pathname.startsWith('/ai_model_training');
         }
         return currentLocation.pathname === item.path;
     }, [currentLocation.pathname]);

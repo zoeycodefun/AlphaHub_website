@@ -18,6 +18,7 @@
  * 7. clearError() -clear the error message
  */
 import { create } from "zustand";
+import { useAccountStore } from './accounts_management_global_state_store';
 import {
     authApiService,
     type AuthUser,
@@ -77,6 +78,9 @@ export const userAuthStore = create<AuthState>((set) => ({
         try {
             const user = await authApiService.getMe();
             set({ currentUser: user, isAuthenticated: true });
+            // refresh CEX/DEX accounts list
+            useAccountStore.getState().fetchCexAccounts();
+            useAccountStore.getState().fetchDexAccounts();
         } catch {
             authApiService.logout();
             set({ currentUser: null, isAuthenticated: false });

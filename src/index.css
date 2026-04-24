@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* ===== Dark Theme (Default) ===== */
+  html {
+    --c-bg-base: 3 7 18;               /* gray-950 */
+    --c-bg-card: 17 24 39;             /* gray-900 */
+    --c-bg-surface: 31 41 55;          /* gray-800 */
+    --c-bg-surface-hover: 55 65 81;    /* gray-700 */
+
+    --c-text-primary: 255 255 255;          /* white */
+    --c-text-secondary: 209 213 219;        /* gray-300 */
+    --c-text-muted: 156 163 175;            /* gray-400 */
+    --c-text-dim: 107 114 128;              /* gray-500 */
+
+    --c-border-base: 31 41 55;         /* gray-800 */
+    --c-border-strong: 55 65 81;       /* gray-700 */
+  }
+
+  /* ===== Light Theme ===== */
+  html.light {
+    --c-bg-base: 249 250 251;          /* gray-50 */
+    --c-bg-card: 255 255 255;          /* white */
+    --c-bg-surface: 243 244 246;       /* gray-100 */
+    --c-bg-surface-hover: 229 231 235; /* gray-200 */
+
+    --c-text-primary: 17 24 39;             /* gray-900 */
+    --c-text-secondary: 75 85 99;           /* gray-600 */
+    --c-text-muted: 107 114 128;            /* gray-500 */
+    --c-text-dim: 156 163 175;              /* gray-400 */
+
+    --c-border-base: 229 231 235;      /* gray-200 */
+    --c-border-strong: 209 213 219;    /* gray-300 */
+  }
+
+  html,
+  body {
+    background-color: rgb(var(--c-bg-base) / 1);
+    color: rgb(var(--c-text-primary) / 1);
+  }
+}
+
+@layer utilities {
+  .bg-card-solid {
+    background-color: rgb(var(--c-bg-card) / 1);
+  }
+  .bg-base-solid {
+    background-color: rgb(var(--c-bg-base) / 1);
+  }
+}
+
 /* 隐藏滚动条 */
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */
@@ -16,7 +65,7 @@
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  font-weight: 100;
+  font-weight: 400;
 
   color-scheme: light dark;
 
